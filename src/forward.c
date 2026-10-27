@@ -34,10 +34,10 @@ void forward_couche(struct couche * couche)
 
 void forward_resaux(struct resaux *resaux)
 {
-    for (size_t i = 0; i < resaux->nombre_couches; i++)
+    for (size_t i = 1; i < resaux->nombre_couches; i++)
     {
         forward_couche(&resaux->couches[i]);
-        printf("couche : %zu\t->\tactivation : %f\n", i, (&resaux->couches[i])->neurones->activation);
+        //printf("couche : %zu\t->\tactivation : %f\n", i, (&resaux->couches[i])->neurones->activation);
     }
 }
 

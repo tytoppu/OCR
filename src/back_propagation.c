@@ -38,3 +38,38 @@ void back_propagation(struct resaux *resaux, const double *target)
         }
     }
 }
+
+char gessed_letter(const struct resaux *r)
+{
+    const struct couche *out = &r->couches[r->nombre_couches - 1];
+    size_t best = 0;
+    for (size_t k = 1; k < out->nombre_neurones; ++k)
+        if (out->neurones[k].activation > out->neurones[best].activation)
+            best = k;
+    return (char)('A' + best);
+}
+
+void update_weights(struct resaux *resaux, double lr){
+    for (size_t l = 1; l < resaux->nombre_couches; l++){
+        struct couche *C = &resaux->couches[l];
+        for (size_t j = 0; j < C->nombre_neurones; j++){
+            struct neurone *n = &C->neurones[j];
+
+            for (struct list_chaine_lien *it = n->all_entre; it != NULL; it = it->next)
+                it->lien->weight -= lr * n->delta * it->lien->entre->activation;
+
+            n->biai -= lr * n->delta;
+        }
+    }
+}
+
+
+double mse(const struct resaux *r, const double *target){
+    const struct couche *out = &r->couches[r->nombre_couches - 1];
+    double s = 0.0;
+    for (size_t k = 0; k < out->nombre_neurones; ++k) {
+        double d = out->neurones[k].activation - target[k];
+        s += 0.5 * d * d;
+    }
+    return s;
+}
