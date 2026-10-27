@@ -1,4 +1,4 @@
-#include "../include/back_propagation.h"
+#include "back_propagation.h"
 
 
 double derive_sigmoid(double income)

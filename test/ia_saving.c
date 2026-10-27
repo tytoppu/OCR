@@ -1,7 +1,7 @@
-#include "../include/ia1.h"
-#include "../include/forward.h"
-#include "../include/image.h"
-#include "../include/saving_progress.h"
+#include "ia1.h"
+#include "forward.h"
+#include "image.h"
+#include "saving_progress.h"
 
 
 
@@ -71,4 +71,4 @@ int main(void)
     return EXIT_SUCCESS;
 }
 
-
+/

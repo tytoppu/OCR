@@ -1,4 +1,4 @@
-#include "../include/saving_progress.h"
+#include "saving_progress.h"
 
 void load_ia(struct resaux *resaux, char *filename)
 {

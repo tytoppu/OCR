@@ -1,4 +1,4 @@
-#include "../include/ia1.h"
+#include "ia1.h"
 
 double g_random(size_t n_in) 
 { 

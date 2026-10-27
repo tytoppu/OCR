@@ -1,4 +1,4 @@
-#include "../include/forward.h"
+#include "forward.h"
 
 
 double sigmoid(double income)

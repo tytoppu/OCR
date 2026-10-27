@@ -1,4 +1,4 @@
-#include "../include/image.h"
+#include "image.h"
 
 static uint16_t lire_u16(FILE *f, int *ok)
 {
