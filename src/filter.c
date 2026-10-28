@@ -11,12 +11,11 @@
 /* ========================================
             auxiliaire
 ======================================== */
-
-Uint8 GrayAt(SDL_PixelFormat *form, Uint8* p){
-    /*
+/*
+Uint8 GrayAt(SDL_PixelFormat *form, Uint8* p){      // inutile ?
         return la valeur du R d'un pixel pointe par p,
         autrement dit ca veleur grayscale
-    */
+
     Uint32 pixel;
     memcpy(&pixel, p, form->BytesPerPixel);
 
@@ -27,16 +26,16 @@ Uint8 GrayAt(SDL_PixelFormat *form, Uint8* p){
     SDL_GetRGB(pixel, form, &r, &g, &b);
     return r;
 }
+*/
 
-
-void contigu (SDL_Surface* surface, int histogram[256], int* lower_pix, int* highter_pix){
+void contigu (struct simple_surface simple, int histogram[256], int* lower_pix, int* highter_pix){
     /*
         calcul les valeur lower_pix et highter_pix des pixel
-        au 5% d'extremite
+        au CONTIGUITY % d'extremite (changeable ?)
     */
 
     int parcourt_histo = 0;                         // compt le nombre de valeur parcouru
-    int contigu = surface->w * surface->h * 0.05;
+    int contigu = simple->w * simple->h * CONTIGUITY;     // calcul la contiguite
     int i = 0;
     while (parcourt_histo <= contigu){
         parcourt_histo += histogram[i];
@@ -70,52 +69,6 @@ void insert_array(Uint8 array[9], int* size, Uint8 elem){
     (*size) ++;
 }
 
-
-int evaluate_rotation(SDL_Surface* surface, double angle){
-    double theta = angle * M_PI / 180.0;
-    double c = cos(theta);
-    double s = sin(theta);
-
-    SDL_PixelFormat* form = surface->format;
-    int w = surface->w;
-    int h = surface->h;
-    double cx = w/2.0;
-    double cy = h/2.0;
-    SDL_Surface* new = SDL_CreateRGBSurfaceWithFormat(0, w, h,
-            form->BitsPerPixel, form->format);
-
-    int bpp = new->format->BytesPerPixel;
-    int pitch = new->pitch;
-
-    Uint32 pixel;
-    int y = 0;
-    int x = 0;
-    int x_s;
-    int y_s;
-    while(y < h){
-        x = 0;
-        while(x < w){
-
-            x_s = (int)round(c * (x - cx) + s * (y - cy) + cx);
-            y_s = (int)round(-s * (x - cx) + c * (y - cy) + cy);
-
-            if (x_s >= 0 && x_s < w && y_s >= 0 && y_s < h)
-                memcpy(&pixel, 
-                        (Uint8 *) surface->pixels + y_s * pitch + x_s * bpp, 
-                        bpp);
-            else 
-                pixel = SDL_MapRGB(form, font, font, font);
-            memcpy((Uint8 *) new->pixels + y * pitch + x * bpp, &pixel, bpp);
-
-            x++;
-        }
-        y++;
-    }
-    //SDL_FreeSurface(surface);
-    return new;
-
-}
-
 /* ========================================
                 grayscale
 ======================================== */
@@ -132,40 +85,36 @@ Uint8 single_grayscale(Uint8 r, Uint8 g, Uint8 b){
 
 
 
-void grayscale(SDL_Surface* surface){
+struct simple_surface* start_grayscale(SDL_Surface* surface){
     /*
-        transphorm l'image en place en niveaux de gris
-    */
+     * transphorm une image sous forme de surface en struct simple_surface 
+     * en metent tout les pixel en nuance de gris
+     */
 
-    Uint8 *p = NULL;    // pointeur sur pixel
-    Uint32 pixel;       // valeur RGB d'un pixel
-
-    int bpp = surface->format->BytesPerPixel;   // vrais tail d'un pixel
-    SDL_PixelFormat* form = surface->format;    // format de l'image'
-    int x = 0;      // pos sur la largeur (commence a gauche)
-    int y = 0;      // pos sur la heuteur (commence en haut)
+    int w = surface->w;
+    int h = surface->h;
+    struct simple_surface* grayscale = init_simple_surface(w, h);
 
     Uint8 r;
     Uint8 g;
     Uint8 b;
-    Uint8 gray;     // gray final ("moyenne" des RGB enssemble)
+    Uint32 pixel;
 
-    while(y < surface->h){
+    int x = 0;      // pos sur la largeur (commence a gauche)
+    int y = 0;      // pos sur la heuteur (commence en haut)
+
+    while(y < h){
         x = 0;
-        while(x < surface->w){
-            p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
-            memcpy(&pixel, p, bpp);
-
-            SDL_GetRGB(pixel, form, &r, &g, &b);
-            gray = single_grayscale(r, g, b);
-
-            pixel = SDL_MapRGB(form, gray, gray, gray);
-            memcpy(p, &pixel, bpp);
+        while(x < w){
+            pixel = get_pixel(surface, x, y);
+            SDL_GetRGB(pixel, surface->format, &r, &g, &b);
+            grayscale->gray[y * w + x] = single_grayscale(r, g, b);
 
             x++;
         }
         y++;
     }
+    return grayscale;
 }
 
 
@@ -173,16 +122,15 @@ void grayscale(SDL_Surface* surface){
             median filter
 ======================================== */
 
-Uint8 single_median_filter(SDL_Surface* surface, int x, int y){
+Uint8 single_median_filter(struct simple_surface simple, int x, int y){
     /*
-        renvoi la valeur median dans un carre de 3x3 autour 
-        du pixel cible
-    */
-    SDL_PixelFormat* form = surface->format;
-    int bpp = form->BytesPerPixel;
-    int pitch = surface->pitch;
-    int w = surface->w;
-    int h = surface->h;
+     * renvoi la valeur median dans un carre de 3x3 autour 
+     * du pixel cible
+     */
+
+    int w = simple->w;
+    int h = simple->h;
+    Uint8* gray = simple->gray;
 
     int size = 0;                   // nombre de valeur enregistre
     Uint8 array[9];       // tableau trie en ordre croissant avec les valeur grayscale des pixel
@@ -190,46 +138,39 @@ Uint8 single_median_filter(SDL_Surface* surface, int x, int y){
         array[r] = 255;
     }
 
-    Uint8* p = (Uint8 *)surface->pixels + y * pitch + x * bpp;
-    insert_array(array, &size, GrayAt(form, p));    // insert la valeur gray du pixel cible pointe par p (avec le format form) dans l'array (en updatent la tail)
+    insert_array(array, &size, gray[y * w + x]);    // insert la valeur gray du pixel cible pointe par gray dans l'array (en updatent la tail)
 
     if (x > 0) {
-        insert_array(array, &size, GrayAt(form,(p - bpp)));
-        if (y > 0) insert_array(array, &size, GrayAt(form,(p - bpp - pitch)));
-        if (y < h - 1) insert_array(array, &size, GrayAt(form,(p - bpp + pitch)));
+        insert_array(array, &size, gray[y * w + x - 1]);
+        if (y > 0) insert_array(array, &size, gray[(y-1) * w + x-1]);
+        if (y < h - 1) insert_array(array, &size, gray[(y+1) * w + x-1]);
     }
     if (x < w - 1) {
-        insert_array(array, &size, GrayAt(form,(p + bpp)));
-        if (y > 0)insert_array(array, &size, GrayAt(form,(p + bpp - pitch)));
-        if (y < h - 1) insert_array(array, &size, GrayAt(form,(p + bpp + pitch)));
+        insert_array(array, &size, gray[y * w + x+1]);
+        if (y > 0)insert_array(array, &size, gray[(y-1) * w + x+1]);
+        if (y < h - 1) insert_array(array, &size, gray[(y+1) * w + x+1]);
     }
 
-    if (y > 0) insert_array(array, &size, GrayAt(form,(p - pitch)));
-    if (y < h - 1) insert_array(array, &size, GrayAt(form,(p + pitch)));
+    if (y > 0) insert_array(array, &size, gray[(y-1) * w + x]);
+    if (y < h - 1) insert_array(array, &size, gray[(y+1) * w + x]);
 
     // return la medianne
-    //for (size_t k = 0; k<9; k++) printf("%i\n", array[k]);
-    //printf("\n\n");
     if (size%2 == 0) return (array[size/2 - 1] + array[size/2]) / 2;
     else return array[size/2];
 }
 
 
-SDL_Surface* median_filter(SDL_Surface *surface, int histogram[256]){
+struct simple_surface* median_filter(struct simple_surface* simple, int histogram[256]){
     /*
         prend une surface, creer une nouvelle surface vide appeller new, 
         la rempli pixel par pixel avec le median filter, 
         free l'ancienne surface et renvoi la new
     */
 
-    SDL_PixelFormat* form = surface->format;
-    int w = surface->w;
-    int h = surface->h;
-    SDL_Surface* new = SDL_CreateRGBSurfaceWithFormat(0, w, h, 
-            form->BitsPerPixel, form->format);
+    int w = simple->w;
+    int h = simple->h;
+    struct simple_surface* median = init_simple_surface(w, h);
 
-    int bpp = new->format->BytesPerPixel;
-    int pitch = new->pitch;
     Uint8 gray_median;
     Uint32 pixel;
     Uint8* p = NULL;
@@ -238,18 +179,14 @@ SDL_Surface* median_filter(SDL_Surface *surface, int histogram[256]){
     while(y < h){
         x = 0;
         while(x < w){
-            gray_median = single_median_filter(surface, x, y);
+            gray_median = single_median_filter(simple, x, y);
             histogram[gray_median] ++;
-
-            pixel = SDL_MapRGB(form, gray_median, gray_median, gray_median);
-            p = (Uint8 *) new->pixels + y * pitch + x * bpp;
-            memcpy(p, &pixel, bpp);
+            median[y*w + x] = gray_median;
 
             x++;
         }
         y++;
     }
-    SDL_FreeSurface(surface);
     return new;
 }
 
@@ -273,42 +210,29 @@ Uint8 single_contrast(Uint8 gray, Uint8 min, Uint8 max){
     return answer;
 }
 
-void contrast(SDL_Surface* surface, int histogram[256]){
+struct simple_surface* contrast(struct simple_surface* simple, int histogram[256]){
     /*
-        contrast tout les pixel d'une surface, en place, 
-        celon un histogram, et a 5% de contiguite
+     * contrast tout les pixel d'une simple_surface,
+     * celon un histogram, et a CONTIGUITY % de contiguite
+     * return une nouvelle struct simple_surface
     */
 
-    SDL_PixelFormat* form = surface->format;
-    int bpp = form->BytesPerPixel;
-    int pitch = surface->pitch;
-    int w = surface->w;
-    int h = surface->h;
+    int w = simple->w;
+    int h = simple->h;
+    struct simple_surface* contrater = init_simple_surface(w, h);
 
     int lower_pix = -1;
     int highter_pix = -1;
-    contigu (surface, histogram, &lower_pix, &highter_pix);
-
-    Uint32 pixel;
-    Uint8* p = NULL;
-
-    Uint8 r;
-    Uint8 g;
-    Uint8 b;
-    Uint8 gray;
+    contigu (simple, histogram, &lower_pix, &highter_pix);
 
     int y = 0;
     int x = 0;
     while(y < h){
         x = 0;
         while(x < w){
-            p = (Uint8 *)surface->pixels + y * pitch + x * bpp;
-            memcpy(&pixel, p, bpp);
-            SDL_GetRGB(pixel, form, &r, &g, &b);
-            //gray = black_and_white(single_contrast(r, lower_pix, highter_pix));
-            gray = single_contrast(r, lower_pix, highter_pix);
-            pixel = SDL_MapRGB(form, gray, gray, gray);
-            memcpy(p, &pixel, bpp);
+            contrater->gray[y*w + x] = 
+                single_contrast(simple->gray[y*w + x], lower_pix, highter_pix);
+
             x++;
         }
         y++;
@@ -321,7 +245,7 @@ void contrast(SDL_Surface* surface, int histogram[256]){
             black_and_white
 ======================================== */
 
-Uint8 black_and_white(Uint8 gray){
+Uint8 single_Otsu(Uint8 gray, int array){
     if (gray < 127) return 0;
     return 255;
 }
@@ -332,26 +256,79 @@ Uint8 black_and_white(Uint8 gray){
             rotate image
 ======================================== */
 
+/*
+int evaluate_rotation(struct simple_surface simple, double angle){
+     * renvoi un struct simple_surface 
+     * qui est le parametre simple mais rotate. rien n'a etait free
 
+    double theta = angle * M_PI / 180.0;
+    double c = cos(theta);
+    double s = sin(theta);
+
+
+    int new_w = (int)round(fabs(simple->w * c) + fabs(simple->h * s)) + 1;
+    int new_h = (int)round(fabs(simple->w * s) + fabs(simple->h * c)) + 1;
+
+    struct simple_surface* rotate = init_simple_surface(new_w, new_h);
+    if (!rotate) 
+        errx(EXIT_FAILURE, "init_simple_surface failure in rotate_picture");
+
+    double cx = simple->w/2.0;
+    double cy = simple->h/2.0;
+    double cnew_x = new_w/2.0;
+    double cnew_y = new_h/2.0;
+
+    Uint8 pixel;
+    int y = 0;
+    int x = 0;
+    int x_s;
+    int y_s;
+    while(y < new_h){
+        x = 0;
+        while(x < new_w){
+
+            x_s = (int)round(c * (x - cnew_x) + s * (y - cnew_y) + cx);
+            y_s = (int)round(-s * (x - cnew_x) + c * (y - cnew_y) + cy);
+
+            if (x_s >= 0 && x_s < simple->w && y_s >= 0 && y_s < simple->h)
+                pixel = simple->gray[y_s * simple->w + x_s];
+            else 
+                pixel = font;
+            rotate->gray[y * new_w + x] = pixel;
+
+            x++;
+        }
+        y++;
+    }
+    return rotate;
+}
+*/
 
 /* ========================================
             MAIN : normalizer
 ======================================== */
 
 
-SDL_Surface* normalizer(SDL_Surface *surface){
+struct simple_surface* normalizer(SDL_Surface *surface){
     /*
-        tout les process de traitement de l'image, 
-        qui finisse par retourne une nouvelle surface
-    */
+     * tout les process de traitement d'une image, 
+     * apres avoir etait charge, une surface est traiter
+     * puis on finis par retourner un struct simple_surface
+     */
+
     int histogram[256];
-    grayscale(surface);
 
-    return surface;
-    SDL_Surface* new_surface = median_filter(surface, histogram);
+    struct simple_surface* grayscale = start_grayscale(surface);
+    //return grayscale;
 
-    contrast(new_surface, histogram);
+    struct simple_surface* median = median_filter(grayscale, histogram);
+    destroy_simple_surface(grayscale);
+    //return median;
 
-    if(!new_surface) err(EXIT_FAILURE, "normalizer FAILED");
-    return new_surface;
+    struct simple_surface* contrater = contrast(median, histogram);
+    destroy_simple_surface(median);
+    //return contraster;
+
+    if(!contraster) err(EXIT_FAILURE, "normalizer FAILED");
+    return contraster;
 }
