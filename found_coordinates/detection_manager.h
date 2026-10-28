@@ -4,7 +4,8 @@
 
 #include "structures/detection_data.h"
 
-//Lance toutes les étapes de détection
+
+//Launch all detection steps
 int run_detection(const unsigned char *image,
                   int width,
                   int height,
@@ -12,7 +13,7 @@ int run_detection(const unsigned char *image,
        
                   DetectionData *data);
 
-/* Libère la mémoire allouée dans DetectionData. */
+/* Frees the memory allocated in DetectionData. */
 void free_detection_data(DetectionData *data);
 
 #endif /* DETECTION_MANAGER_H */

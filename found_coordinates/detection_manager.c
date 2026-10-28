@@ -9,8 +9,7 @@
 #include "detection/word_list_detection.h"
 #include "detection/letter_detection.h"
 
-
-//Libere toute la memoire utilisee par DetectionData.
+//Frees all the memory used by DetectionData.
  
 void free_detection_data(DetectionData *data)
 {
@@ -37,12 +36,16 @@ void free_detection_data(DetectionData *data)
     data->cell_count = 0;
 }
 
+
+
+
 /*
- Lance toutes les etapes de detection
- et remplit la structure DetectionData.
- *
- Return 1 en cas de succes, 0 en cas d'erreur.
- */
+Runs all detection steps
+and fills the DetectionData structure.
+*
+Returns 1 on success, 0 on error.
+*/
+
 int run_detection(const unsigned char *image,
                   int width,
                   int height,
