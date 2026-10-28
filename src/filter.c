@@ -71,6 +71,50 @@ void insert_array(Uint8 array[9], int* size, Uint8 elem){
 }
 
 
+int evaluate_rotation(SDL_Surface* surface, double angle){
+    double theta = angle * M_PI / 180.0;
+    double c = cos(theta);
+    double s = sin(theta);
+
+    SDL_PixelFormat* form = surface->format;
+    int w = surface->w;
+    int h = surface->h;
+    double cx = w/2.0;
+    double cy = h/2.0;
+    SDL_Surface* new = SDL_CreateRGBSurfaceWithFormat(0, w, h,
+            form->BitsPerPixel, form->format);
+
+    int bpp = new->format->BytesPerPixel;
+    int pitch = new->pitch;
+
+    Uint32 pixel;
+    int y = 0;
+    int x = 0;
+    int x_s;
+    int y_s;
+    while(y < h){
+        x = 0;
+        while(x < w){
+
+            x_s = (int)round(c * (x - cx) + s * (y - cy) + cx);
+            y_s = (int)round(-s * (x - cx) + c * (y - cy) + cy);
+
+            if (x_s >= 0 && x_s < w && y_s >= 0 && y_s < h)
+                memcpy(&pixel, 
+                        (Uint8 *) surface->pixels + y_s * pitch + x_s * bpp, 
+                        bpp);
+            else 
+                pixel = SDL_MapRGB(form, font, font, font);
+            memcpy((Uint8 *) new->pixels + y * pitch + x * bpp, &pixel, bpp);
+
+            x++;
+        }
+        y++;
+    }
+    //SDL_FreeSurface(surface);
+    return new;
+
+}
 
 /* ========================================
                 grayscale
@@ -284,6 +328,9 @@ Uint8 black_and_white(Uint8 gray){
 
 
 
+/* =======================================
+            rotate image
+======================================== */
 
 
 

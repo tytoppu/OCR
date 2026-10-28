@@ -15,15 +15,19 @@
 //#define WINDOW_WIDTH 800
 
 
+struct simple_surface{
+    int w;
+    int h;
+    Uint8* gray;
+};
+
+
 //      bitmap.c
 
 SDL_Surface *load_image(const char *path);
 void save_image(SDL_Surface *surface, const char *path);
 SDL_Surface* make_chunck(SDL_Surface* surface, int x1, int y1, int x2, int y2);
 SDL_Surface* rotate_picture(SDL_Surface* surface, double angle, Uint8 font);
-
-
-//      pixel.c
 
 Uint32 get_pixel(SDL_Surface *surface, int x, int y);
 void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel);

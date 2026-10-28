@@ -5,33 +5,84 @@
  * et traitement elementaire de surface / image
  */
 
-SDL_Surface* load_image(const char *path){
+
+
+
+/* ========================================
+                SDL_Surface
+======================================== */
+
+
+
+SDL_Surface* load_standar_picture (const char *path){
     SDL_Surface* picure = IMG_Load(path);
     if (!picure)
         errx(EXIT_FAILURE, "IMG_Load: %s",SDL_GetError());
 
-    return picure;
+    SDL_Surface* standar_picture = SDL_ConvertSurfaceFormat(picure,
+            SDL_PIXELFORMAT_ARGB8888, 0);
+    if (!standar_picture)
+        errx(EXIT_FAILURE, "SDL_ConvertSurfaceFormat: %s",SDL_GetError());
+
+    return standar_picture;
 }
 
-void save_image(SDL_Surface* surface, const char *path){
+void save_picture(SDL_Surface* surface, const char *path){
     if (SDL_SaveBMP(surface, path) != 0)
         errx(EXIT_FAILURE, "SDL_SaveBMP: %s", SDL_GetError());
     //SDL_FreeSurface(surface);
 }
 
-SDL_Surface* make_chunck(SDL_Surface* surface, int x1, int y1, int x2, int y2){
-    if (x2 >= surface->w || y2 >= surface->h)
-        err(EXIT_FAILURE, "save_chunck : Input error, invalid x2 or y2");
 
-    SDL_Surface* chunck = SDL_CreateRGBSurfaceWithFormat(0, x2 - x1, y2 - y1, 
-            surface->format->BitsPerPixel, surface->format->format);
+
+/* ========================================
+            struct simple_surface
+======================================== */
+
+struct simple_surface* init_simple_surface(int w, int h){
+    struct simple_surface new = malloc(sizeof(struct simple_surface));
+    if(!new) errx(EXIT_FAILURE, "malloc in init_simple_surface");
+
+    new->w = w;
+    new->h = h;
+    new->gray = malloc(sizeof(Uint8) * w * h);
+
+    return new;
+}
+
+
+SDL_Surface* simple_surface_to_surface(struct simple_surface* simple){
+    SDL_Surface* new = SDL_CreateRGBSurfaceWithFormat(0, simple->w, simple->h,
+            32, SDL_PIXELFORMAT_ARGB8888);
+    return new;
+}
+
+
+
+struct simple_surface make_chunck(struct simple_surface simple, int x1, int y1, int x2, int y2){
+    if (x1 > x2) {
+        int temp = x1;
+        x1 = x2;
+        x2 = temp;
+    }
+    if (y1 > y2) {
+        int temp = y1;
+        y1 = y2;
+        y2 = temp;
+    }
+
+    if (x1 < 0 || x2 >= simple->w || y1 < 0 || y2 >= simple->h)
+        errx(EXIT_FAILURE, "save_chunck : Input error, invalid x2 or y2");
+
+    struct simple_surface chunck = init_simple_surface(x2 - x1, y2 - y1);
     if (!chunck) 
-        err(EXIT_FAILURE, "SDL_CreateRGBSurfaceWithFormat : %s", SDL_GetError());
+        errx(EXIT_FAILURE, "init_simple_surface");
 
-    SDL_Rect rectangle = { x1, y1, x2 - x1, y2 - y1 };
-
-    if (SDL_BlitSurface(surface, &rectangle, chunck, NULL) != 0)
-        err(EXIT_FAILURE, "SDL_BlitSurface : %s", SDL_GetError());
+    for (int x = x1; x <= x2; x++){
+        for (int y = y1; y <= y2; y++){
+        chunck->gray[]
+        }
+    }
 
     return chunck;
 }
@@ -82,23 +133,20 @@ SDL_Surface* rotate_picture(SDL_Surface* surface, double angle, Uint8 font){
 }
 
 
-/*
-SDL_Surface* rotate_picture(SDL_Surface* src, double angle_deg, Uint8 font){
-
-    for (int y = 0; y < h; y++){
-        for (int x = 0; x < w; x++){
-            // position correspondante dans la source
-            double sx =  c * (x - cx) + s * (y - cy) + cx;
-            double sy = -s * (x - cx) + c * (y - cy) + cy;
-            int ix = (int)round(sx), iy = (int)round(sy);
-
-            Uint32 pixel = white;
-            if (ix >= 0 && ix < w && iy >= 0 && iy < h)
-                memcpy(&pixel, (Uint8*)src->pixels + iy*src->pitch + ix*bpp, bpp);
-
-            memcpy((Uint8*)dst->pixels + y*dst->pitch + x*bpp, &pixel, bpp);
-        }
-    }
-    return dst;
+Uint32 get_pixel(SDL_Surface *surface, int x, int y)
+{
+    if(surface->format->BytesPerPixel != 4) errx(EXIT_FAILURE, "The Bytes Per Pixel isn't 4");
+    int size = y * surface->w + x;
+    Uint32* pixel = (Uint32*)(surface->pixels);
+    return *(pixel + size);
+    //en gros c un jeux de tail de memoir entre pitch pour les y et sizeof(pixel) pour les x, on faite genre surfacce->pixe[y*pitch + x*sizeof(pixel)] et on tomber sur le pixel quon veu
 }
-*/
+
+void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
+{
+    if(surface->format->BytesPerPixel != 4) errx(EXIT_FAILURE, "The Bytes Per Pixel isn't 4");
+    int size = y * surface->w + x;
+    Uint32* the_pixel = (Uint32*)(surface->pixels);
+    *(the_pixel + size) = pixel;
+}
+
