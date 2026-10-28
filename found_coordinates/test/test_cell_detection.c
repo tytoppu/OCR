@@ -5,10 +5,10 @@
 #include "detection/cell_detection.h"
 
 /*
- * Teste la fonction build_cells().
- *
- * Retourne 1 si tous les tests reussissent,
- * 0 si un test echoue.
+  Teste la fonction build_cells().
+ 
+  Retourne 1 si tous les tests reussissent,
+  0 si un test echoue.
  */
 int test_cell_detection(void)
 {
@@ -19,11 +19,6 @@ int test_cell_detection(void)
     int columns = 3;
 
     printf("\n=== TEST DE CELL_DETECTION ===\n");
-
-    /*
-     * 1. Creation d'une grille fictive
-     * dont les coordonnees sont connues.
-     */
     grid.bounds.top_left.x = 10;
     grid.bounds.top_left.y = 20;
 
@@ -40,9 +35,6 @@ int test_cell_detection(void)
     printf("Coin superieur gauche : (10, 20)\n");
     printf("Coin inferieur droit  : (100, 80)\n");
 
-    /*
-     * 2. Construction du tableau de cases.
-     */
     if (!build_cells(&grid, rows, columns, &cells)) {
         printf("ERREUR : impossible de creer les cases.\n");
         return 0;
@@ -50,9 +42,6 @@ int test_cell_detection(void)
 
     printf("\nCreation des cases reussie !\n");
 
-    /*
-     * 3. Affichage des coordonnees de chaque case.
-     */
     for (int row = 0; row < rows; row++) {
         for (int column = 0; column < columns; column++) {
             CellCoordinates *cell = &cells[row][column];
@@ -71,9 +60,6 @@ int test_cell_detection(void)
         }
     }
 
-    /*
-     * 4. Verification de quelques coordonnees attendues.
-     */
     if (cells[0][0].bounds.top_left.x != 10 ||
         cells[0][0].bounds.top_left.y != 20) {
         printf("\nECHEC : coordonnees de la premiere case incorrectes.\n");
@@ -97,9 +83,6 @@ int test_cell_detection(void)
 
     printf("\nTous les tests ont reussi !\n");
 
-    /*
-     * 5. Liberation de la memoire.
-     */
     free_cells(cells, rows);
 
     return 1;

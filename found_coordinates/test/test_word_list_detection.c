@@ -40,10 +40,10 @@ int main(void)
     int word_count = 0;
     int ok = 1;
 
-    /* Fond blanc. */
+    // Fond blanc. 
     memset(image, 255, sizeof(image));
 
-    /* Grille fictive : elle occupe la zone x = 50 a 90. */
+    // Grille fictive : zone x = 50 a 90. 
     grid.bounds.top_left.x = 50;
     grid.bounds.top_left.y = 5;
     grid.bounds.top_right.x = 90;

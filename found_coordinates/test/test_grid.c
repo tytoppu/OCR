@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Test helper for binary PGM (P5), 8-bit grayscale images. */
 static int read_token(FILE *file, char *buffer, size_t capacity)
 {
     int c;
