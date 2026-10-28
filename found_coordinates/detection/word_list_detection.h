@@ -6,12 +6,14 @@
 #include "../structures/detection_data.h"
 
 /**
-  Detecte les limites de la zone contenant la liste de mots.
- 
- word_list Coordonnees de la zone globale de la liste.
- *
- return 1 si la detection reussit, 0 en cas d'echec.
- */
+Detects the boundaries of the area containing the list of words.
+
+word_list Coordinates of the overall list area.
+*
+returns 1 if the detection succeeds, 0 in case of failure.
+*/
+
+
 int detect_word_list_bounds(const unsigned char *image,
                             int width,
                             int height,
@@ -19,10 +21,14 @@ int detect_word_list_bounds(const unsigned char *image,
                             const GridCoordinates *grid,
                             WordListCoordinates *word_list);
 
+
+
 /*
- * Detecte les limites de chaque mot dans la zone de la liste.
-  1 si la detection reussit, 0 en cas d'echec.
- */
+* Detects the boundaries of each word in the list area.
+1 if detection succeeds, 0 if it fails.
+*/
+
+
 int detect_words_bounds(const unsigned char *image,
                         int width,
                         int height,
@@ -31,9 +37,12 @@ int detect_words_bounds(const unsigned char *image,
                         DetectedWord **words,
                         int *word_count);
 
+
+
 /*
-  Libere la memoire du tableau de mots detectes.
- */
+Frees the memory of the array of detected words.
+*/
+
 void free_detected_words(DetectedWord *words, int word_count);
 
 #endif /* WORD_LIST_DETECTION_H */

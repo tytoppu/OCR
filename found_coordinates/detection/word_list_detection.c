@@ -3,8 +3,13 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-/* L'image contient un octet par pixel :
-   noir = 0 blanc = 255. */
+
+/* The image contains one byte per pixel:
+black = 0 white = 255. */
+
+
+
+
 #define INK_THRESHOLD 128
 #define MAX_BLANK_GAP 1
 
@@ -36,7 +41,9 @@ static void set_rectangle(Rectangle *r,
     r->bottom_left.y = y_max;
 }
 
-/* Calcule la boite englobante des pixels sombres d'une zone. */
+
+/* Calculates the bounding box of the dark pixels in an area. */
+
 static int find_bounds_in_region(const unsigned char *image,
                                  int width,
                                  int height,
@@ -87,10 +94,16 @@ static int find_bounds_in_region(const unsigned char *image,
     return *ink_count > 0;
 }
 
+
 /*
- * Detecte les limites globales de la liste de mots.
- * La liste peut se trouver a gauche ou a droite de la grille.
- */
+* Detects the overall boundaries of the word list.
+* The list can be on the left or right side of the grid.
+*/
+
+
+
+
+
 int detect_word_list_bounds(const unsigned char *image,
                             int width,
                             int height,
@@ -128,7 +141,10 @@ int detect_word_list_bounds(const unsigned char *image,
                           &rmaxx, &rmaxy,
                           &rcount);
 
-    /* Choisit le cote contenant le plus de pixels sombres. */
+
+    /* Chooses the side containing the most dark pixels. */
+
+
     if (lcount == 0 && rcount == 0)
         return 0;
 
@@ -151,14 +167,19 @@ int detect_word_list_bounds(const unsigned char *image,
     return 1;
 }
 
+
+
 /*
- * Detecte les limites de chaque mot.
- *
- * Hypothese :
- * - un mot par ligne ;
- * - une seule colonne de mots ;
- * - les lignes de mots sont separees par du blanc.
- */
+* Detects the boundaries of each word.
+*
+* Hypothesis:
+* - one word per line;
+* - a single column of words;
+* - word lines are separated by whitespace.
+*/
+
+
+
 int detect_words_bounds(const unsigned char *image,
                         int width,
                         int height,
@@ -195,11 +216,16 @@ int detect_words_bounds(const unsigned char *image,
         x_min > x_max || y_min > y_max)
         return 0;
 
-    /*
-     * Parcourt les lignes de pixels de la zone.
-     * La marge supplementaire permet de fermer
-     * correctement la derniere ligne de texte.
-     */
+
+
+
+/*
+* Loops through the pixel lines of the area.
+* The extra margin helps to properly close
+* the last line of text.
+*/
+
+
     for (int y = y_min;
          y <= y_max + MAX_BLANK_GAP + 1;
          ++y) {
@@ -231,10 +257,12 @@ int detect_words_bounds(const unsigned char *image,
                 int word_min_x = width;
                 int word_max_x = -1;
 
-                /*
-                 * Recherche les limites horizontales
-                 * du mot dans la bande detectee.
-                 */
+
+		/*
+* Searches for the horizontal limits
+* of the word in the detected strip.
+*/
+
                 for (int yy = band_start;
                      yy <= band_end;
                      ++yy) {
@@ -250,7 +278,9 @@ int detect_words_bounds(const unsigned char *image,
                     }
                 }
 
-                /* Ajoute le mot au tableau dynamique. */
+		
+		/* Adds the word to the dynamic array. */
+
                 if (word_max_x >= word_min_x) {
 
                     if (*word_count == capacity) {
@@ -304,7 +334,9 @@ int detect_words_bounds(const unsigned char *image,
     return 1;
 }
 
-/* Libere la memoire allouee pour les mots detectes. */
+
+/* Free the memory allocated for the detected words. */
+
 void free_detected_words(DetectedWord *words,
                          int word_count)
 {

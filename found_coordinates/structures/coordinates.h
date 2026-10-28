@@ -4,8 +4,8 @@
 
 
 
-//coordonné en pixel
 
+//coordinate in pixels
 
 typedef struct
 {
@@ -14,7 +14,8 @@ typedef struct
 } Point;
 
 
-//les coordonnés d'une zones
+//the coordinates of an area
+
 
 typedef struct
 {
@@ -25,7 +26,9 @@ typedef struct
 } Rectangle;
 
 
-//info de la grille
+//grid info
+
+
 
 typedef struct
 {
@@ -36,7 +39,9 @@ typedef struct
     int cell_height;
 } GridCoordinates;
 
-//dis si liste de mots à droite ou à gauche
+
+//say if list of words on the right or on the left
+
 
 typedef enum
 {
@@ -44,9 +49,8 @@ typedef enum
     WORD_LIST_RIGHT
 } WordListSide;
 
+//coordinates of the word list and location
 
-
-//coordinnées de la liste de mots et emplacement
 
 typedef struct
 {

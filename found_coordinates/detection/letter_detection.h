@@ -5,13 +5,19 @@
 #include "../structures/coordinates.h"
 #include "../structures/detection_data.h"
 
-//Détecte les lettres présentes dans la grille.
-//Retourne 1 en cas de succès, 0 en cas d'erreur.
+
+
+
+//Detects the letters present on the grid.
+//Returns 1 on success, 0 on error.
+
 int detect_grid_letters(const DetectionData *data,
                         LetterCoordinates **letters,
                         int *letter_count);
 
-//Détecte les lettres de chaque mot de la liste.
+
+
+//Detects the letters of each word in the list.
 int detect_word_letters(const unsigned char *image,
                         int width,
                         int height,

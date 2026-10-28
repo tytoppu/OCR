@@ -5,10 +5,8 @@
 
 //
 //
+//checks if pixel is black //<128 otherwise white
 
-
-//verifie si pixel noir
-//<128 sinon blanc
 static int is_black(const unsigned char *image,int width,int height,int stride,int x, int y)
 {
     	(void)width;
@@ -21,7 +19,6 @@ static int is_black(const unsigned char *image,int width,int height,int stride,i
 
 
 
-//chercher la plus longue ligne
 static int longest_black_run_in_row(const unsigned char *image,int width, int height, int stride, int y)
 {
     	int x;
@@ -47,9 +44,8 @@ static int longest_black_run_in_row(const unsigned char *image,int width, int he
 
 
 
+//search for the longest column
 
-
-//chercher la plus longue colone
 static int longest_black_run_in_column(const unsigned char *image,
                                        int width,
                                        int height,
@@ -77,24 +73,27 @@ static int longest_black_run_in_column(const unsigned char *image,
     return longest_run;
 }
 
-//cherche coordonné de la grille
 
-//stride->nb octet entre le début de 2 ligne cons
+
+
+//looking for grid coordinates
+
+//stride -> number of bytes between the start of 2 consecutive lines
 int detect_grid_bounds(const unsigned char *image,
                        int width,
                        int height,
                        int stride,
                        GridCoordinates *grid)
 {
-    int x;//colonnes
-    int y;//lignes
-    int min_run;//min suite noire
-    int top = -1;//ligne lim sup
-    int bottom = -1;//ligne lim inf
-    int left = -1;//col lim sup
+    int x;
+    int y;
+    int min_run;
+    int top = -1;
+    int bottom = -1;
+    int left = -1;
 		 
-    int right = -1;//col lim inf
-    int best_horizontal_run = 0;//plus grande suite
+    int right = -1;
+    int best_horizontal_run = 0;
     int best_vertical_run = 0;
     int horizontal_threshold;
     int vertical_threshold;
@@ -102,8 +101,7 @@ int detect_grid_bounds(const unsigned char *image,
     if (image == NULL || grid == NULL || width <= 0 || height <= 0 ||
         stride < width)
         return 0;
-
-//longueur minimal pixel noir estimation    
+//minimal black pixel length estimate
     min_run = (width < height ? width : height) / 12;
     if (min_run < 10)
         min_run = 10;
@@ -194,8 +192,8 @@ int detect_grid_dimensions(const unsigned char *image,
     		return 0;
 	}
 	double black_ratio;
-	int horizontal_borders = 0;//compte nombre bordure detectées
-	int in_border = 0; //indique si déjà dans un bordure
+	int horizontal_borders = 0;//counts number of edges detected
+	int in_border = 0; //indicates if already in a border
 	for (int y=top; y<=bottom; y++)
 	{
 		black_pixels=0;
@@ -224,8 +222,8 @@ int detect_grid_dimensions(const unsigned char *image,
 	printf("Bordures horizontales détectées : %d\n",
        horizontal_borders);
 	grid->rows = horizontal_borders - 1;
-	int vertical_borders = 0;//compte nombre bordure detectées
-        int in_border_vertical = 0; //indique si déjà dans un bordure
+	int vertical_borders = 0;//counts number of edges detected
+        int in_border_vertical = 0; //indicates if already in a border
 	int grid_height = bottom - top + 1;
 	for (int x=left; x<=right; x++)
 	{
@@ -260,7 +258,7 @@ int detect_grid_dimensions(const unsigned char *image,
         	return 0;
     	}
 
-    /* Calcul des dimensions théoriques des cellules */
+     /* Calculation of the theoretical dimensions of the cells */
     	grid->cell_width = (right - left) / grid->columns;
     	grid->cell_height = (bottom - top) / grid->rows;
 

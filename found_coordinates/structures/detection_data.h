@@ -4,7 +4,9 @@
 #include "coordinates.h"
 
 
-// coordonné d'une case
+
+// coordinate of a square
+
 
 typedef struct
 {
@@ -13,14 +15,17 @@ typedef struct
     int column;
 } CellCoordinates;
 
-//coordonné d'une lettre
+
+//coordinates of a letter
 
 typedef struct
 {
     Rectangle bounds;
 } LetterCoordinates;
 
-//coordonné d'un mot et des ses lettre
+
+
+//coordinate of a word and its letters
 
 typedef struct
 {
@@ -30,7 +35,9 @@ typedef struct
     LetterCoordinates *letters;
 } DetectedWord;
 
-//indique la couleur dominante
+
+//indicates the dominant color
+
 typedef enum
 {
 	BLACK,
@@ -38,7 +45,9 @@ typedef enum
 }DominantColor;
 
 
-//regroupe tout résultat
+
+//gathers all results
+
 typedef struct
 {
     GridCoordinates grid;

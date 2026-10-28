@@ -4,10 +4,11 @@
 
 #include "letter_detection.h"
 
+
 /*
- * Copie les coordonnées des cases de la grille
- * pour les utiliser comme coordonnées des lettres.
- */
+* Copies the coordinates of the grid squares
+* to use them as coordinates for the letters.
+*/
 
 
 int detect_grid_letters(const DetectionData *data,
@@ -56,9 +57,8 @@ int detect_grid_letters(const DetectionData *data,
 }
 
 
+//Identify the letters of a word by grouping the black pixels
 
-
-//Repère les lettres d'un mot en regroupant les pixels noirs
 int detect_word_letters(const unsigned char *image,
                         int width,
                         int height,
@@ -92,7 +92,7 @@ int detect_word_letters(const unsigned char *image,
         if (x_min >= x_max || y_min >= y_max)
             return 0;
 
-        // Première passe : compter les groupes de pixels noirs.
+	// First pass: count the groups of black pixels.
          
         for (x = x_min; x < x_max; x++)
         {
@@ -130,8 +130,8 @@ int detect_word_letters(const unsigned char *image,
 
         words[w].letter_count = letter_count;
 
-        //enregistre les limites horizontales
-     
+     	//records the horizontal limits
+
         in_letter = 0;
         letter_count = 0;
 

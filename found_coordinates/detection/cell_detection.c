@@ -3,17 +3,16 @@
 #include <stdlib.h>
 
 
-//Construit un tableau a deux dimensions contenant
-//les coordonnees de chaque case de la grille.
+//Build a two-dimensional array containing
+//the coordinates of each cell in the grid.
 /*
- * grid    : coordonnees de la grille detectee.
- * rows    : nombre de lignes.
- * columns : nombre de colonnes.
- * cells   : adresse du tableau a creer.
- *
- * Return 1 succes, 0 erreur.
- */
-
+* grid: coordinates of the detected grid.
+* rows: number of rows.
+* columns: number of columns.
+* cells: address of the array to create.
+*
+* Returns 1 on success, 0 on error.
+*/
 
 
 #include <stdlib.h>
@@ -94,12 +93,10 @@ int build_cells(const GridCoordinates *grid, CellCoordinates ***cells)
 
 
 
+// Frees the memory used by the array.
 
-
-// Libere la memoire utilisee par le tableau.
-
-//cells : tableau a liberer.
-// rows  : nombre de lignes allouees.
+// cells: array to free.
+// rows: number of allocated rows.
 
 void free_cells(CellCoordinates **cells, int rows)
 {
