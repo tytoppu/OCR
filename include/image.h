@@ -8,12 +8,11 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <stddef.h>
+#include <string.h>
 #include <err.h>
 #include <math.h>
 
-//#define WINDOW_HEIGHT 600
-//#define WINDOW_WIDTH 800
-#define CONTIGUITY 800
+#define CONTIGUITY 0.05
 
 struct simple_surface{
     int w;
@@ -37,6 +36,41 @@ int charger_image_bmp_double(const char *chemin,
                              size_t hauteur);
 
 
+
+/* ========================================
+                bitmap.c
+======================================== */
+
+// SDL_Surface
+
+SDL_Surface* load_standar_picture (const char *path);
+void save_picture(SDL_Surface* surface, const char *path);
+void save_simple(struct simple_surface* simple, const char *path);
+
+
+// struct simple_surface
+
+struct simple_surface* init_simple_surface(int w, int h);
+SDL_Surface* simple_surface_to_surface(struct simple_surface* simple);
+void destroy_simple_surface(struct simple_surface* simple);
+
+
+// traitement elementaire
+
+struct simple_surface* make_chunck(struct simple_surface* simple, int x1, int y1, int x2, int y2);
+struct simple_surface* rotate_picture(struct simple_surface* simple, double angle, Uint8 font);
+
+
+// pixel
+
+Uint32 get_pixel(SDL_Surface *surface, int x, int y);
+void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
+
+
+
+
+
+
 /* ========================================
                 filter.c
 ======================================== */
@@ -44,7 +78,7 @@ int charger_image_bmp_double(const char *chemin,
 // auxiliaire
 
 //Uint8 GrayAt(SDL_PixelFormat *form, Uint8* p);
-void contigu (struct simple_surface simple, int histogram[256], int* lower_pix, int* highter_pix);
+void contigu (struct simple_surface* simple, int histogram[256], int* lower_pix, int* highter_pix);
 void insert_array(Uint8 array[9], int* size, Uint8 elem);
 
 
@@ -56,7 +90,7 @@ struct simple_surface* start_grayscale(SDL_Surface* surface);
 
 // median filter
 
-Uint8 single_median_filter(struct simple_surface simple, int x, int y);
+Uint8 single_median_filter(struct simple_surface* simple, int x, int y);
 struct simple_surface* median_filter(struct simple_surface* simple, int histogram[256]);
 
 
@@ -68,48 +102,17 @@ struct simple_surface* contrast(struct simple_surface* simple, int histogram[256
 
 // black_and_white
 
-Uint8 single_Otsu(Uint8 gray, int array;
+Uint8 single_Otsu(Uint8 gray, int array);
 
 
 // rotate image
 
-int evaluate_rotation(struct simple_surface simple, double angle);
+int evaluate_rotation(struct simple_surface* simple, double angle);
 
 
 // MAIN : normalizer
 
 struct simple_surface* normalizer(SDL_Surface *surface);
-
-
-
-/* ========================================
-                bitmap.c
-======================================== */
-
-// SDL_Surface
-
-SDL_Surface* load_standar_picture (const char *path);
-void save_picture(SDL_Surface* surface, const char *path);
-
-
-// struct simple_surface
-
-struct simple_surface* init_simple_surface(int w, int h);
-SDL_Surface* simple_surface_to_surface(struct simple_surface* simple);
-void destroy_simple_surface(struct simple_surface simple);
-
-
-// traitement elementaire
-
-struct simple_surface make_chunck(struct simple_surface simple, int x1, int y1, int x2, int y2);
-struct simple_surface* rotate_picture(struct simple_surface* simple, double angle, Uint8 font);
-
-
-// pixel
-
-Uint32 get_pixel(SDL_Surface *surface, int x, int y);
-void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
-
 
 
 #endif

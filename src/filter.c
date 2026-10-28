@@ -28,26 +28,27 @@ Uint8 GrayAt(SDL_PixelFormat *form, Uint8* p){      // inutile ?
 }
 */
 
-void contigu (struct simple_surface simple, int histogram[256], int* lower_pix, int* highter_pix){
+void contigu (struct simple_surface* simple, int histogram[256], int* lower_pix, int* highter_pix){
     /*
         calcul les valeur lower_pix et highter_pix des pixel
         au CONTIGUITY % d'extremite (changeable ?)
     */
 
-    int parcourt_histo = 0;                         // compt le nombre de valeur parcouru
-    int contigu = simple->w * simple->h * CONTIGUITY;     // calcul la contiguite
+    int seuil = simple->w * simple->h * CONTIGUITY;     // calcul la contiguite
+
     int i = 0;
-    while (parcourt_histo <= contigu){
-        parcourt_histo += histogram[i];
+    int parcourt_histo = histogram[i];
+    while (parcourt_histo <= seuil && i < 255){
         i ++;
+        parcourt_histo += histogram[i];
     }
     *lower_pix = i;
 
     i = 255;
-    parcourt_histo = 0;
-    while (parcourt_histo <= contigu){
-        parcourt_histo += histogram[i];
+    parcourt_histo = histogram[i];
+    while (parcourt_histo <= seuil && i < 255){
         i --;
+        parcourt_histo += histogram[i];
     }
     *highter_pix = i;
 }
@@ -80,7 +81,7 @@ Uint8 single_grayscale(Uint8 r, Uint8 g, Uint8 b){
         son RGB
     */
 
-    return 0.299 * r + 0.587 * g + 0.114 * b;
+    return (Uint8)(0.299 * r + 0.587 * g + 0.114 * b + 0.5);
 }
 
 
@@ -122,7 +123,7 @@ struct simple_surface* start_grayscale(SDL_Surface* surface){
             median filter
 ======================================== */
 
-Uint8 single_median_filter(struct simple_surface simple, int x, int y){
+Uint8 single_median_filter(struct simple_surface* simple, int x, int y){
     /*
      * renvoi la valeur median dans un carre de 3x3 autour 
      * du pixel cible
@@ -172,8 +173,6 @@ struct simple_surface* median_filter(struct simple_surface* simple, int histogra
     struct simple_surface* median = init_simple_surface(w, h);
 
     Uint8 gray_median;
-    Uint32 pixel;
-    Uint8* p = NULL;
     int y = 0;
     int x = 0;
     while(y < h){
@@ -181,13 +180,13 @@ struct simple_surface* median_filter(struct simple_surface* simple, int histogra
         while(x < w){
             gray_median = single_median_filter(simple, x, y);
             histogram[gray_median] ++;
-            median[y*w + x] = gray_median;
+            median->gray[y*w + x] = gray_median;
 
             x++;
         }
         y++;
     }
-    return new;
+    return median;
 }
 
 
@@ -219,24 +218,30 @@ struct simple_surface* contrast(struct simple_surface* simple, int histogram[256
 
     int w = simple->w;
     int h = simple->h;
-    struct simple_surface* contrater = init_simple_surface(w, h);
+    struct simple_surface* contraster = init_simple_surface(w, h);
 
     int lower_pix = -1;
     int highter_pix = -1;
     contigu (simple, histogram, &lower_pix, &highter_pix);
+
+    if (highter_pix <= lower_pix) {
+        memcpy(contraster->gray, simple->gray, w * h);
+        return contraster;
+    }
 
     int y = 0;
     int x = 0;
     while(y < h){
         x = 0;
         while(x < w){
-            contrater->gray[y*w + x] = 
+            contraster->gray[y*w + x] = 
                 single_contrast(simple->gray[y*w + x], lower_pix, highter_pix);
 
             x++;
         }
         y++;
     }
+    return contraster;
 }
 
 
@@ -244,12 +249,12 @@ struct simple_surface* contrast(struct simple_surface* simple, int histogram[256
 /* =======================================
             black_and_white
 ======================================== */
-
+/*
 Uint8 single_Otsu(Uint8 gray, int array){
     if (gray < 127) return 0;
     return 255;
 }
-
+*/
 
 
 /* =======================================
@@ -316,7 +321,7 @@ struct simple_surface* normalizer(SDL_Surface *surface){
      * puis on finis par retourner un struct simple_surface
      */
 
-    int histogram[256];
+    int histogram[256] = {0};
 
     struct simple_surface* grayscale = start_grayscale(surface);
     //return grayscale;
@@ -325,7 +330,7 @@ struct simple_surface* normalizer(SDL_Surface *surface){
     destroy_simple_surface(grayscale);
     //return median;
 
-    struct simple_surface* contrater = contrast(median, histogram);
+    struct simple_surface* contraster = contrast(median, histogram);
     destroy_simple_surface(median);
     //return contraster;
 

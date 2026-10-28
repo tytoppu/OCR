@@ -21,6 +21,7 @@ SDL_Surface* load_standar_picture (const char *path){
 
     SDL_Surface* standar_picture = SDL_ConvertSurfaceFormat(picure,
             SDL_PIXELFORMAT_ARGB8888, 0);
+    SDL_FreeSurface(picure);
     if (!standar_picture)
         errx(EXIT_FAILURE, "SDL_ConvertSurfaceFormat: %s",SDL_GetError());
 
@@ -33,6 +34,11 @@ void save_picture(SDL_Surface* surface, const char *path){
     //SDL_FreeSurface(surface);
 }
 
+void save_simple(struct simple_surface* simple, const char *path){
+    SDL_Surface* saving = simple_surface_to_surface(simple);
+    save_picture(saving, path);
+    SDL_FreeSurface(saving);
+}
 
 
 /* ========================================
@@ -46,7 +52,7 @@ struct simple_surface* init_simple_surface(int w, int h){
     new->w = w;
     new->h = h;
     new->gray = malloc(sizeof(Uint8) * w * h);
-    if(!gray) errx(EXIT_FAILURE, "malloc in init_simple_surface");
+    if(!new->gray) errx(EXIT_FAILURE, "malloc in init_simple_surface");
 
     return new;
 }
@@ -55,10 +61,25 @@ struct simple_surface* init_simple_surface(int w, int h){
 SDL_Surface* simple_surface_to_surface(struct simple_surface* simple){
     SDL_Surface* new = SDL_CreateRGBSurfaceWithFormat(0, simple->w, simple->h,
             32, SDL_PIXELFORMAT_ARGB8888);
+    if(!new)
+        errx(EXIT_FAILURE, "malloc in simple_surface_to_surface");
+
+    Uint32 pixel;
+    Uint8 gray;
+    for(int y = 0; y < simple->h ;y++) {
+        for(int x = 0; x < simple->w ;x++) {
+            gray = simple->gray[y*simple->w + x];
+            //printf("%i\n",gray);
+            pixel = SDL_MapRGB(new->format, gray, gray, gray);
+            //printf("%i\n",pixel);
+            set_pixel(new, x, y, pixel);
+        }
+    }
+    //save_picture(new, "firstly.bmp");
     return new;
 }
 
-void destroy_simple_surface(struct simple_surface simple){
+void destroy_simple_surface(struct simple_surface* simple){
     if (!simple) return;
 
     if (simple->gray) free(simple->gray);
@@ -69,8 +90,12 @@ void destroy_simple_surface(struct simple_surface simple){
         traitement elementaire
 ======================================== */
 
+struct simple_surface* make_chunck(struct simple_surface* simple, int x1, int y1, int x2, int y2){
+    /*
+     * renvoi une struct simple_surface 
+     * contenent les pixel du chunck de (x1,y1) exclu a (x2y2) exclu
+     */
 
-struct simple_surface make_chunck(struct simple_surface simple, int x1, int y1, int x2, int y2){
     if (x1 > x2) {
         int temp = x1;
         x1 = x2;
@@ -82,16 +107,16 @@ struct simple_surface make_chunck(struct simple_surface simple, int x1, int y1, 
         y2 = temp;
     }
 
-    if (x1 < 0 || x2 >= simple->w || y1 < 0 || y2 >= simple->h)
-        errx(EXIT_FAILURE, "save_chunck : Input error, invalid x2 or y2");
+    if (x1 < 0 || x2 > simple->w || y1 < 0 || y2 > simple->h || x2-x1<2 || y2-y1<2)
+        errx(EXIT_FAILURE, "make_chunck : Input error, invalid x or y");
 
-    struct simple_surface chunck = init_simple_surface(x2 - x1, y2 - y1);
+    struct simple_surface* chunck = init_simple_surface(x2 - x1 - 1, y2 - y1 - 1);
     if (!chunck) 
         errx(EXIT_FAILURE, "init_simple_surface");
 
-    for (int x = 0; x <= chunck->w; x++){
-        for (int y = 0; y <= chunck->h; y++)
-            chunck->gray[y*chunck->w + x] = simple->gray[(y+y1)*simple->w + (x+x1)];
+    for (int x = 0; x < chunck->w; x++){
+        for (int y = 0; y < chunck->h; y++)
+            chunck->gray[y*chunck->w + x] = simple->gray[(y+y1+1)*simple->w + (x+x1+1)];
     }
 
     return chunck;
@@ -158,9 +183,12 @@ Uint32 get_pixel(SDL_Surface *surface, int x, int y){
      */
 
     if(!surface) errx(EXIT_FAILURE, "get_pixel : no surface");
-    return *((Uint8*)(surface->pixels) 
+    Uint8* p = (Uint8*)(surface->pixels) 
             + y*surface->pitch 
-            + x*surface->BytesPerPixel);
+            + x*surface->format->BytesPerPixel;
+    Uint32 pixel;
+    memcpy(&pixel,p, surface->format->BytesPerPixel);
+    return pixel;
 }
 
 
@@ -170,7 +198,8 @@ void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel){
      */
 
     if(!surface) errx(EXIT_FAILURE, "set_pixel : no surface");
-    *((Uint8*)(surface->pixels) 
+    Uint8* p = (Uint8*)(surface->pixels) 
             + y*surface->pitch 
-            + x*surface->BytesPerPixel) = pixel;
+            + x*surface->format->BytesPerPixel;
+    memcpy(p, &pixel, surface->format->BytesPerPixel);
 }
