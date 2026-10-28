@@ -6,8 +6,6 @@
 
 
 int build_cells(const GridCoordinates *grid,
-                int rows,
-                int columns,
                 CellCoordinates ***cells);
 
 

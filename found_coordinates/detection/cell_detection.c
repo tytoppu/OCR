@@ -13,90 +13,88 @@
  *
  * Return 1 succes, 0 erreur.
  */
-int build_cells(const GridCoordinates *grid,
-                int rows,
-                int columns,
-                CellCoordinates ***cells)
+
+
+
+#include <stdlib.h>
+#include "cell_detection.h"
+
+int build_cells(const GridCoordinates *grid, CellCoordinates ***cells)
 {
-    	int x_left;
-    	int x_right;
-    	int y_top;
-    	int y_bottom;
+    if (grid == NULL || cells == NULL ||
+        grid->rows <= 0 || grid->columns <= 0 ||
+        grid->cell_width <= 0 || grid->cell_height <= 0)
+    {
+        return 0;
+    }
 
-    	CellCoordinates **result;
+    int rows = grid->rows;
+    int columns = grid->columns;
 
-    	if (cells == NULL)
-        	return 0;
+    *cells = malloc(rows * sizeof(CellCoordinates *));
+    if (*cells == NULL)
+        return 0;
 
-    	*cells = NULL;
+    for (int row = 0; row < rows; row++)
+    {
+        (*cells)[row] = malloc(columns * sizeof(CellCoordinates));
 
-    	if (grid == NULL || rows <= 0 || columns <= 0)
-        	return 0;
+        if ((*cells)[row] == NULL)
+        {
+            for (int i = 0; i < row; i++)
+                free((*cells)[i]);
 
-    // Recup des limites de la grille 
-    	x_left = grid->bounds.top_left.x;
-    	x_right = grid->bounds.top_right.x;
-    	y_top = grid->bounds.top_left.y;
-    	y_bottom = grid->bounds.bottom_left.y;
+            free(*cells);
+            *cells = NULL;
+            return 0;
+        }
+    }
 
-    	if (x_right <= x_left || y_bottom <= y_top)
-        	return 0;
+    int left = grid->bounds.top_left.x;
+    int top = grid->bounds.top_left.y;
 
-    /* Alloc du tableau de lignes. */
-    	result = malloc((size_t)rows * sizeof(*result));
+    for (int row = 0; row < rows; row++)
+    {
+        for (int col = 0; col < columns; col++)
+        {
+            CellCoordinates *cell = &(*cells)[row][col];
 
-    	if (result == NULL)
-        	return 0;
+            cell->row = row;
+            cell->column = col;
 
-    /* Alloc colonnes pour chaque ligne */
-    	for (int row = 0; row < rows; row++) {
-        	result[row] = malloc((size_t)columns * sizeof(*result[row]));
+            cell->bounds.top_left.x =
+                left + col * grid->cell_width;
+            cell->bounds.top_left.y =
+                top + row * grid->cell_height;
 
-        	if (result[row] == NULL) {
-            		for (int i = 0; i < row; i++)
-                		free(result[i]);
+            cell->bounds.top_right.x =
+                cell->bounds.top_left.x + grid->cell_width;
+            cell->bounds.top_right.y =
+                cell->bounds.top_left.y;
 
-            		free(result);
-            	return 0;
-        	}
-    	}
+            cell->bounds.bottom_left.x =
+                cell->bounds.top_left.x;
+            cell->bounds.bottom_left.y =
+                cell->bounds.top_left.y + grid->cell_height;
 
-// Calcul des coordonnes de chaque case 
-    	for (int row = 0; row < rows; row++) {
-        	int y1 = y_top+ (int)(((long long)(y_bottom - y_top) * row) / rows);
+            cell->bounds.bottom_right.x =
+                cell->bounds.top_right.x;
+            cell->bounds.bottom_right.y =
+                cell->bounds.bottom_left.y;
+        }
+    }
 
-        	int y2 = y_top+ (int)(((long long)(y_bottom - y_top) * (row + 1)) / rows);
-
-        	for (int column = 0; column < columns; column++) {
-            		int x1 = x_left
-                		+ (int)(((long long)(x_right - x_left) * column)/ columns);
-
-            		int x2 = x_left
-                		+ (int)(((long long)(x_right - x_left) * (column + 1))/ columns);
-
-            		CellCoordinates *cell = &result[row][column];
-
-            		cell->row = row;
-            		cell->column = column;
-
-            		cell->bounds.top_left.x = x1;
-            		cell->bounds.top_left.y = y1;
-
-            		cell->bounds.top_right.x = x2;
-            		cell->bounds.top_right.y = y1;
-
-            		cell->bounds.bottom_right.x = x2;
-            		cell->bounds.bottom_right.y = y2;
-
-            		cell->bounds.bottom_left.x = x1;
-            		cell->bounds.bottom_left.y = y2;
-        	}
-    	}
-
-    	*cells = result;
-
-    	return 1;
+    return 1;
 }
+
+
+
+
+
+
+
+
+
 
 // Libere la memoire utilisee par le tableau.
 

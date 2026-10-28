@@ -30,6 +30,13 @@ typedef struct
     LetterCoordinates *letters;
 } DetectedWord;
 
+//indique la couleur dominante
+typedef enum
+{
+	BLACK,
+	WHITE
+}DominantColor;
+
 
 //regroupe tout résultat
 typedef struct
@@ -46,5 +53,8 @@ typedef struct
     int word_count;
     DetectedWord *words;
 } DetectionData;
+
+
+
 
 #endif /* DETECTION_DATA_H */

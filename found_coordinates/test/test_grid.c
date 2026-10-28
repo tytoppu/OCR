@@ -1,4 +1,4 @@
-#include "detection/grid_detection.h"
+#include "../detection/grid_detection.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -132,7 +132,11 @@ int main(int argc, char **argv)
            grid.bounds.bottom_right.x, grid.bounds.bottom_right.y);
     printf("Bottom-left:  (%d, %d)\n",
            grid.bounds.bottom_left.x, grid.bounds.bottom_left.y);
-
+	detect_grid_dimensions(pixels, width, height, width, &grid);
+	printf("Nombre de lignes : %d\n", grid.rows);
+printf("Nombre de colonnes : %d\n", grid.columns);
+printf("Largeur d'une cellule : %d\n", grid.cell_width);
+printf("Hauteur d'une cellule : %d\n", grid.cell_height);
     free(pixels);
     return EXIT_SUCCESS;
 }

@@ -1,5 +1,5 @@
 #include "grid_detection.h"
-
+#include <stdio.h>
 #include <stddef.h>
 
 
@@ -169,5 +169,107 @@ int detect_grid_bounds(const unsigned char *image,
 
 
 
+int detect_grid_dimensions(const unsigned char *image,
+                           int width,
+                           int height,
+                           int stride,
+                           GridCoordinates *grid)
+{
+	if (image == NULL || grid == NULL ||
+    		width <= 0 || height <= 0 || stride < width)
+	{
 
+    		return 0;
+	}
+	int left = grid->bounds.top_left.x;
+	int right = grid->bounds.top_right.x;
+	int top = grid->bounds.top_left.y;
+	int bottom = grid->bounds.bottom_left.y;
+	int grid_width = right - left + 1;
+	int black_pixels = 0;
+	if (left < 0 || right >= width ||
+    		top < 0 || bottom >= height ||
+    		right <= left || bottom <= top)
+	{
+    		return 0;
+	}
+	double black_ratio;
+	int horizontal_borders = 0;//compte nombre bordure detectées
+	int in_border = 0; //indique si déjà dans un bordure
+	for (int y=top; y<=bottom; y++)
+	{
+		black_pixels=0;
+		for (int x = left; x <= right; x++)
+		{
+    			if (image[y * stride + x] < 128)
+    			{
+        			black_pixels++;
+    			}
+		}
+		black_ratio = (double)black_pixels / grid_width;
+		if (black_ratio >= 0.8 )
+		{
+			if (in_border==0)
+			{
+				horizontal_borders++;
+				in_border=1;
+			}
+
+    			
+		}
+		else{
+			in_border=0;
+		}
+	}
+	printf("Bordures horizontales détectées : %d\n",
+       horizontal_borders);
+	grid->rows = horizontal_borders - 1;
+	int vertical_borders = 0;//compte nombre bordure detectées
+        int in_border_vertical = 0; //indique si déjà dans un bordure
+	int grid_height = bottom - top + 1;
+	for (int x=left; x<=right; x++)
+	{
+		black_pixels=0;
+		for (int y=top; y<=bottom; y++)
+		{
+			if (image[y*stride+x]<128)
+			{
+				black_pixels++;
+			}
+		}
+		black_ratio = (double)black_pixels / grid_height;
+		if (black_ratio >= 0.8 )
+                {
+                        if (in_border_vertical==0)
+                        {
+                                vertical_borders++;
+                                in_border_vertical=1;
+                        }
+
+
+                }
+                else{
+                        in_border_vertical=0;
+                }
+	}
+	printf("Bordures horizontales détectées : %d\n",
+       horizontal_borders);
+	grid->columns = vertical_borders - 1;
+	if (grid->rows <= 0 || grid->columns <= 0)
+    	{
+        	return 0;
+    	}
+
+    /* Calcul des dimensions théoriques des cellules */
+    	grid->cell_width = (right - left) / grid->columns;
+    	grid->cell_height = (bottom - top) / grid->rows;
+
+    	if (grid->cell_width <= 0 || grid->cell_height <= 0)
+    	{
+        	return 0;
+    	}
+
+    	return 1;
+
+}
 

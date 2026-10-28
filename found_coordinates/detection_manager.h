@@ -9,8 +9,7 @@ int run_detection(const unsigned char *image,
                   int width,
                   int height,
                   int stride,
-                  int rows,
-                  int columns,
+       
                   DetectionData *data);
 
 /* Libère la mémoire allouée dans DetectionData. */

@@ -47,13 +47,11 @@ int run_detection(const unsigned char *image,
                   int width,
                   int height,
                   int stride,
-                  int rows,
-                  int columns,
+               
                   DetectionData *data)
 {
     if (image == NULL || data == NULL ||
-        width <= 0 || height <= 0 || stride < width ||
-        rows <= 0 || columns <= 0)
+        width <= 0 || height <= 0 || stride < width )
     {
         return 0;
     }
@@ -66,22 +64,20 @@ int run_detection(const unsigned char *image,
         goto error;
     }
 
-    data->grid.rows = rows;
-    data->grid.columns = columns;
-
+    if (!detect_grid_dimensions(image, width, height, stride, &data->grid))
+    	return 0;
     if (!detect_word_list_bounds(image, width, height, stride,
                                  &data->grid, &data->word_list))
     {
         goto error;
     }
 
-    if (!build_cells(&data->grid, rows, columns, &data->cells))
+    if (!build_cells(&data->grid, &data->cells))
     {
         goto error;
     }
-
-    data->cell_count = rows * columns;
-
+    data->cell_count = data->grid.rows * data->grid.columns;
+	
     if (!detect_words_bounds(image, width, height, stride,
                              &data->word_list,
                              &data->words, &data->word_count))
@@ -108,4 +104,7 @@ error:
     free_detection_data(data);
     return 0;
 }
+
+
+
 
