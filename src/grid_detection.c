@@ -1,7 +1,8 @@
 #include "grid_detection.h"
 #include <stdio.h>
 #include <stddef.h>
-
+#include <err.h>
+#include <stdlib.h>
 
 //
 //
@@ -12,7 +13,7 @@ static int is_black(const unsigned char *image,int width,int height,int stride,i
     	(void)width;
 
     	if (x < 0 || y < 0 || x >= width || y >= height)
-        	return 0;
+        	errx(EXIT_FAILURE, "is_black : wrong input");
 
     	return image[(size_t)y * (size_t)stride + (size_t)x] == colors;
 }
@@ -92,7 +93,6 @@ int detect_grid_bounds(const unsigned char *image,
     int top = -1;
     int bottom = -1;
     int left = -1;
-		 
     int right = -1;
     int best_horizontal_run = 0;
     int best_vertical_run = 0;
@@ -101,7 +101,7 @@ int detect_grid_bounds(const unsigned char *image,
 
     if (image == NULL || grid == NULL || width <= 0 || height <= 0 ||
         stride < width)
-        return 0;
+        errx(EXIT_FAILURE, "detect_grid_bounds : wrong input");
 //minimal black pixel length estimate
     min_run = (width < height ? width : height) / 12;
     if (min_run < 10)
@@ -140,11 +140,8 @@ int detect_grid_bounds(const unsigned char *image,
         	}
     	}
 
-    	if (top < 0 || bottom <= top || left < 0 || right <= left)
-        	return 0;
-
-    	if (bottom - top < min_run || right - left < min_run)
-        	return 0;
+    	if (top < 0 || bottom <= top || left < 0 || right <= left || bottom - top < min_run || right - left < min_run)
+        	errx(EXIT_FAILURE, "detect_grid_bounds : wrong result");
 
     	grid->bounds.top_left.x = left;
     	grid->bounds.top_left.y = top;
@@ -168,6 +165,24 @@ int detect_grid_bounds(const unsigned char *image,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int detect_grid_dimensions(const unsigned char *image,
                            int width,
                            int height,
@@ -178,8 +193,7 @@ int detect_grid_dimensions(const unsigned char *image,
 	if (image == NULL || grid == NULL ||
     		width <= 0 || height <= 0 || stride < width)
 	{
-
-    		return 0;
+    		errx(EXIT_FAILURE, "detect_grid_dimensions : wrong input");
 	}
 	int left = grid->bounds.top_left.x;
 	int right = grid->bounds.top_right.x;
@@ -191,7 +205,7 @@ int detect_grid_dimensions(const unsigned char *image,
     		top < 0 || bottom >= height ||
     		right <= left || bottom <= top)
 	{
-    		return 0;
+    		errx(EXIT_FAILURE, "detect_grid_dimensions : wrong value in grid");
 	}
 	double black_ratio;
 	int horizontal_borders = 0;//counts number of edges detected
@@ -257,7 +271,7 @@ int detect_grid_dimensions(const unsigned char *image,
 	grid->columns = vertical_borders - 1;
 	if (grid->rows <= 0 || grid->columns <= 0)
     	{
-        	return 0;
+        	errx(EXIT_FAILURE, "detect_grid_dimensions : wrong result 1");
     	}
 
      /* Calculation of the theoretical dimensions of the cells */
@@ -266,7 +280,7 @@ int detect_grid_dimensions(const unsigned char *image,
 
     	if (grid->cell_width <= 0 || grid->cell_height <= 0)
     	{
-        	return 0;
+        	errx(EXIT_FAILURE, "detect_grid_dimensions : wrong result 2");
     	}
 
     	return 1;

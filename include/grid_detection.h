@@ -1,7 +1,7 @@
 #ifndef GRID_DETECTION_H
 #define GRID_DETECTION_H
 
-#include "../structures/coordinates.h"
+#include "coordinates.h"
 
 
 

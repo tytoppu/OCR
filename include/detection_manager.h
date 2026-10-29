@@ -2,7 +2,7 @@
 #ifndef DETECTION_MANAGER_H
 #define DETECTION_MANAGER_H
 
-#include "structures/detection_data.h"
+#include "detection_data.h"
 
 
 //Launch all detection steps

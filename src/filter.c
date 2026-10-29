@@ -11,22 +11,6 @@
 /* ========================================
             auxiliaire
 ======================================== */
-/*
-Uint8 GrayAt(SDL_PixelFormat *form, Uint8* p){      // inutile ?
-        return la valeur du R d'un pixel pointe par p,
-        autrement dit ca veleur grayscale
-
-    Uint32 pixel;
-    memcpy(&pixel, p, form->BytesPerPixel);
-
-    Uint8 r;
-    Uint8 g;
-    Uint8 b;
-
-    SDL_GetRGB(pixel, form, &r, &g, &b);
-    return r;
-}
-*/
 
 void contigu (struct simple_surface* simple, int histogram[256], int* lower_pix, int* highter_pix){
     /*
@@ -53,22 +37,6 @@ void contigu (struct simple_surface* simple, int histogram[256], int* lower_pix,
     *highter_pix = i;
 }
 
-
-/*
-int seuillage(struct simple_surface* simple, int histogram[256]){
-        calcul la valeur inferieur de seuillage pour otsu
-
-    int seuil = simple->w * simple->h * 0.5;
-
-    int i = 0;
-    int parcourt_histo = histogram[i];
-    while (parcourt_histo <= seuil && i < 255){
-        i ++;
-        parcourt_histo += histogram[i];
-    }
-    return i;
-}
-*/
 
 void insert_array(Uint8 array[9], int* size, Uint8 elem){
     /*

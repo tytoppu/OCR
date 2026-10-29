@@ -2,7 +2,7 @@
 #define DOMINANT_COLOR_H
 
 
-#include "../structures/detection_data.h"
+#include "detection_data.h"
 
 
 

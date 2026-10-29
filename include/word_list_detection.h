@@ -2,8 +2,8 @@
 #ifndef WORD_LIST_DETECTION_H
 #define WORD_LIST_DETECTION_H
 
-#include "../structures/coordinates.h"
-#include "../structures/detection_data.h"
+#include "coordinates.h"
+#include "detection_data.h"
 
 /**
 Detects the boundaries of the area containing the list of words.

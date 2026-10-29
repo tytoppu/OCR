@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-
+#include <err.h>
 
 /* The image contains one byte per pixel:
 black = 0 white = 255. */
@@ -71,7 +71,7 @@ static int find_bounds_in_region(const unsigned char *image,
         x_end = width - 1;
 
     if (x_start > x_end)
-        return 0;
+        errx(EXIT_FAILURE, "find_bounds_in_region : wrong input");
 
     for (int y = 0; y < height; ++y) {
         for (int x = x_start; x <= x_end; ++x) {
@@ -120,7 +120,8 @@ int detect_word_list_bounds(const unsigned char *image,
 
     if (!image || !grid || !word_list ||
         width <= 0 || height <= 0 || stride < width)
-        return 0;
+        errx(EXIT_FAILURE, "detect_word_list_bounds : wrong input");
+
 
     grid_left = grid->bounds.top_left.x;
     grid_right = grid->bounds.top_right.x;
@@ -128,7 +129,7 @@ int detect_word_list_bounds(const unsigned char *image,
     if (grid_left < 0 ||
         grid_right >= width ||
         grid_left >= grid_right)
-        return 0;
+        errx(EXIT_FAILURE, "detect_word_list_bounds : wrong input in grid");
 
     find_bounds_in_region(image,
                           width, height, stride,
@@ -149,7 +150,7 @@ int detect_word_list_bounds(const unsigned char *image,
 
 
     if (lcount == 0 && rcount == 0)
-        return 0;
+        errx(EXIT_FAILURE, "detect_word_list_bounds : wrong result in counts");
 
     if (lcount > 0 &&
         (rcount == 0 || lcount >= rcount)) {
@@ -205,14 +206,14 @@ int detect_words_bounds(const unsigned char *image,
     DetectedWord *result = NULL;
 
     if (!words || !word_count)
-        return 0;
+        errx(EXIT_FAILURE, "detect_words_bounds : wrong input");
 
     *words = NULL;
     *word_count = 0;
 
     if (!image || !word_list ||
         width <= 0 || height <= 0 || stride < width)
-        return 0;
+        errx(EXIT_FAILURE, "detect_words_bounds : wrong input");
 
     x_min = word_list->bounds.top_left.x;
     x_max = word_list->bounds.top_right.x;
@@ -222,7 +223,7 @@ int detect_words_bounds(const unsigned char *image,
     if (x_min < 0 || x_max >= width ||
         y_min < 0 || y_max >= height ||
         x_min > x_max || y_min > y_max)
-        return 0;
+        errx(EXIT_FAILURE, "detect_words_bounds : wrong input in word_list->bounds");
 
 
 
@@ -308,7 +309,7 @@ int detect_words_bounds(const unsigned char *image,
                         if (!tmp) {
                             free(result);
                             *word_count = 0;
-                            return 0;
+                            errx(EXIT_FAILURE, "detect_words_bounds : realloc failed");
                         }
 
                         result = tmp;
@@ -339,7 +340,7 @@ int detect_words_bounds(const unsigned char *image,
 
     if (*word_count == 0) {
         free(result);
-        return 0;
+        errx(EXIT_FAILURE, "detect_words_bounds : *word_count == 0");
     }
 
     *words = result;

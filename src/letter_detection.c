@@ -1,7 +1,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <err.h>
 #include "letter_detection.h"
 
 
@@ -20,7 +20,7 @@ int detect_grid_letters(const DetectionData *data,
     int index;
 
     if (data == NULL || letters == NULL || letter_count == NULL)
-        return 0;
+        errx(EXIT_FAILURE, "detect_grid_letters : wrong input");
 
     *letters = NULL;
     *letter_count = 0;
@@ -28,7 +28,7 @@ int detect_grid_letters(const DetectionData *data,
     if (data->cells == NULL ||
         data->grid.rows <= 0 ||
         data->grid.columns <= 0)
-        return 0;
+        errx(EXIT_FAILURE, "detect_grid_letters : wrong input in data");
 
     *letter_count = data->grid.rows * data->grid.columns;
 
@@ -37,7 +37,7 @@ int detect_grid_letters(const DetectionData *data,
     if (*letters == NULL)
     {
         *letter_count = 0;
-        return 0;
+        errx(EXIT_FAILURE, "detect_grid_letters : wrong input in letters");
     }
 
     index = 0;
@@ -72,7 +72,7 @@ int detect_word_letters(const unsigned char *image,
     if (image == NULL || words == NULL ||
         width <= 0 || height <= 0 || stride < width ||
         word_count < 0)
-        return 0;
+        errx(EXIT_FAILURE, "detect_word_letters : wrong input");
 
     for (w = 0; w < word_count; w++)
     {
@@ -91,7 +91,8 @@ int detect_word_letters(const unsigned char *image,
         if (y_max > height) y_max = height;
 
         if (x_min >= x_max || y_min >= y_max)
-            return 0;
+            errx(EXIT_FAILURE, "detect_word_letters : wrong result");
+
 
 	// First pass: count the groups of black pixels.
          
@@ -121,13 +122,13 @@ int detect_word_letters(const unsigned char *image,
         }
 
         if (letter_count == 0)
-            return 0;
+            errx(EXIT_FAILURE, "detect_word_letters : wrong result letter_count");
 
         words[w].letters = malloc(
             letter_count * sizeof(LetterCoordinates));
 
         if (words[w].letters == NULL)
-            return 0;
+            errx(EXIT_FAILURE, "detect_word_letters : wrong result at words[w].letters");
 
         words[w].letter_count = letter_count;
 

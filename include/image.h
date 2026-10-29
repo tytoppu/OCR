@@ -12,9 +12,18 @@
 #include <err.h>
 #include <math.h>
 
+#include "cell_detection.h"
+#include "coordinates.h"
+#include "detection_data.h"
+#include "detection_manager.h"
+#include "dominant_color.h"
+#include "grid_detection.h"
+#include "letter_detection.h"
+#include "word_list_detection.h"
+
 #define CONTIGUITY 0.05
 
-struct simple_surface{
+struct simple_surface{      // gray suppose que l'image a etait grayscaled
     int w;
     int h;
     Uint8* gray;
@@ -75,10 +84,8 @@ void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 
 // auxiliaire
 
-//Uint8 GrayAt(SDL_PixelFormat *form, Uint8* p);
 void contigu (struct simple_surface* simple, int histogram[256], int* lower_pix, int* highter_pix);
 void insert_array(Uint8 array[9], int* size, Uint8 elem);
-//int seuillage(struct simple_surface* simple, int histogram[256]);
 
 
 // grayscale
@@ -113,6 +120,16 @@ int evaluate_rotation(struct simple_surface* simple, double angle);
 // MAIN : normalizer
 
 struct simple_surface* normalizer(SDL_Surface *surface);
+
+
+
+/* ========================================
+                image.c
+======================================== */
+
+
+void pretreatment(SDL_Surface* surface);
+char* naming_point_bnp(const char* prefix, int x, int y);
 
 
 #endif

@@ -2,8 +2,8 @@
 #ifndef LETTER_DETECTION_H
 #define LETTER_DETECTION_H
 
-#include "../structures/coordinates.h"
-#include "../structures/detection_data.h"
+#include "coordinates.h"
+#include "detection_data.h"
 
 
 

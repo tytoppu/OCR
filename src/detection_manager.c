@@ -1,14 +1,15 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <err.h>
 
 #include "detection_manager.h"
 
-#include "detection/grid_detection.h"
-#include "detection/cell_detection.h"
-#include "detection/word_list_detection.h"
-#include "detection/letter_detection.h"
-#include "detection/dominant_color.h"
+#include "grid_detection.h"
+#include "cell_detection.h"
+#include "word_list_detection.h"
+#include "letter_detection.h"
+#include "dominant_color.h"
 
 //Frees all the memory used by DetectionData.
  
@@ -57,7 +58,7 @@ int run_detection(const unsigned char *image,
     if (image == NULL || data == NULL ||
         width <= 0 || height <= 0 || stride < width )
     {
-        return 0;
+        return -1;
     }
 
     memset(data, 0, sizeof(*data));
@@ -72,20 +73,23 @@ int run_detection(const unsigned char *image,
     if (!detect_grid_bounds(image, width, height, stride,
                             &data->grid,colors))
     {
-        goto error;
+        free_detection_data(data);
+        return 2;
     }
 
     if (!detect_grid_dimensions(image, width, height, stride, &data->grid,colors))
-    	return 0;
+    	return 3;
     if (!detect_word_list_bounds(image, width, height, stride,
                                  &data->grid, &data->word_list,colors))
     {
-        goto error;
+        free_detection_data(data);
+        return 4;
     }
 
     if (!build_cells(&data->grid, &data->cells))
     {
-        goto error;
+        free_detection_data(data);
+        return 5;
     }
     data->cell_count = data->grid.rows * data->grid.columns;
 	
@@ -93,29 +97,27 @@ int run_detection(const unsigned char *image,
                              &data->word_list,
                              &data->words, &data->word_count,colors))
     {
-        goto error;
+        free_detection_data(data);
+        return 6;
     }
 
     if (!detect_grid_letters(data,
                              &data->grid_letters,
                              &data->grid_letter_count))
     {
-        goto error;
+        free_detection_data(data);
+        return 7;
     }
 
     if (!detect_word_letters(image, width, height, stride,
                              data->words, data->word_count,colors))
     {
-        goto error;
+        free_detection_data(data);
+        return 8;
     }
 
     return 1;
-
-error:
-    free_detection_data(data);
-    return 0;
 }
-
 
 
 

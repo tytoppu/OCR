@@ -1,6 +1,6 @@
 #include "cell_detection.h"
 
-#include <stdlib.h>
+
 
 
 //Build a two-dimensional array containing
@@ -14,7 +14,7 @@
 * Returns 1 on success, 0 on error.
 */
 
-
+#include <err.h>
 #include <stdlib.h>
 #include "cell_detection.h"
 
@@ -24,7 +24,7 @@ int build_cells(const GridCoordinates *grid, CellCoordinates ***cells)
         grid->rows <= 0 || grid->columns <= 0 ||
         grid->cell_width <= 0 || grid->cell_height <= 0)
     {
-        return 0;
+        errx(EXIT_FAILURE, "build_cells : wrong input");
     }
 
     int rows = grid->rows;
@@ -32,7 +32,7 @@ int build_cells(const GridCoordinates *grid, CellCoordinates ***cells)
 
     *cells = malloc(rows * sizeof(CellCoordinates *));
     if (*cells == NULL)
-        return 0;
+        errx(EXIT_FAILURE, "build_cells : malloc failed");
 
     for (int row = 0; row < rows; row++)
     {
@@ -45,7 +45,7 @@ int build_cells(const GridCoordinates *grid, CellCoordinates ***cells)
 
             free(*cells);
             *cells = NULL;
-            return 0;
+            errx(EXIT_FAILURE, "build_cells : malloc failed on (*cells)[row]");
         }
     }
 

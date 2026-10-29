@@ -1,7 +1,7 @@
 #include "dominant_color.h"
 
 #include <stddef.h>
-
+#include <err.h>
 
 DominantColor detect_dominant_color(
     const unsigned char *image,

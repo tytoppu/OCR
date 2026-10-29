@@ -1,8 +1,8 @@
 #ifndef CELL_DETECTION_H
 #define CELL_DETECTION_H
 
-#include "../structures/coordinates.h"
-#include "../structures/detection_data.h"
+#include "coordinates.h"
+#include "detection_data.h"
 
 
 int build_cells(const GridCoordinates *grid,
