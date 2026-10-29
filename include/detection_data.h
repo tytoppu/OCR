@@ -50,7 +50,7 @@ typedef enum
 
 typedef struct
 {
-    GridCoordinates grid;
+    //GridCoordinates grid;
     WordListCoordinates word_list;
 
     int cell_count;

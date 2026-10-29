@@ -1,7 +1,7 @@
 #ifndef NEW_GRID_LIST_DETECTION_C
 #define NEW_GRID_LIST_DETECTION_C
 
-#include "coordinates.h"
+#include "detection_data.h"
 #include "simple_surface.h"
 
 #include "bitmap.h"
