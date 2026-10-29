@@ -234,7 +234,7 @@ int detect_words_bounds(const unsigned char *image,
 */
     int inv;
     if (colors==0)
-    	inv=250;
+    	inv=255;
     else
 	inv=0;
 
