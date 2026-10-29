@@ -7,19 +7,19 @@
 //
 //checks if pixel is black //<128 otherwise white
 
-static int is_black(const unsigned char *image,int width,int height,int stride,int x, int y)
+static int is_black(const unsigned char *image,int width,int height,int stride,int x, int y,int colors)
 {
     	(void)width;
 
     	if (x < 0 || y < 0 || x >= width || y >= height)
         	return 0;
 
-    	return image[(size_t)y * (size_t)stride + (size_t)x] < 128;
+    	return image[(size_t)y * (size_t)stride + (size_t)x] == colors;
 }
 
 
 
-static int longest_black_run_in_row(const unsigned char *image,int width, int height, int stride, int y)
+static int longest_black_run_in_row(const unsigned char *image,int width, int height, int stride, int y, int colors)
 {
     	int x;
     	int current_run = 0;
@@ -27,7 +27,7 @@ static int longest_black_run_in_row(const unsigned char *image,int width, int he
 
     	for (x = 0; x < width; x++)
     	{
-        	if (is_black(image, width, height, stride, x, y))
+        	if (is_black(image, width, height, stride, x, y,colors))
         	{
             		current_run++;
             		if (current_run > longest_run)
@@ -50,7 +50,8 @@ static int longest_black_run_in_column(const unsigned char *image,
                                        int width,
                                        int height,
                                        int stride,
-                                       int x)
+                                       int x,
+				       int colors)
 {
     	int y;
     	int current_run = 0;
@@ -58,7 +59,7 @@ static int longest_black_run_in_column(const unsigned char *image,
 
     	for (y = 0; y < height; y++)
     	{
-        	if (is_black(image, width, height, stride, x, y))
+        	if (is_black(image, width, height, stride, x, y,colors))
         	{
             	current_run++;
             	if (current_run > longest_run)
@@ -83,7 +84,7 @@ int detect_grid_bounds(const unsigned char *image,
                        int width,
                        int height,
                        int stride,
-                       GridCoordinates *grid)
+                       GridCoordinates *grid, int colors)
 {
     int x;
     int y;
@@ -111,7 +112,7 @@ int detect_grid_bounds(const unsigned char *image,
 
     for (y = 0; y < height; y++)
     {
-        int run = longest_black_run_in_row(image, width, height, stride, y);
+        int run = longest_black_run_in_row(image, width, height, stride, y,colors);
 
         if (run >= horizontal_threshold)
         {
@@ -126,7 +127,7 @@ int detect_grid_bounds(const unsigned char *image,
 
     	for (x = 0; x < width; x++)
     	{
-        	int run = longest_black_run_in_column(image, width, height, stride, x);
+        	int run = longest_black_run_in_column(image, width, height, stride, x,colors);
 
         	if (run >= vertical_threshold)
         	{
@@ -171,7 +172,8 @@ int detect_grid_dimensions(const unsigned char *image,
                            int width,
                            int height,
                            int stride,
-                           GridCoordinates *grid)
+                           GridCoordinates *grid,
+			   int colors)
 {
 	if (image == NULL || grid == NULL ||
     		width <= 0 || height <= 0 || stride < width)
@@ -199,7 +201,7 @@ int detect_grid_dimensions(const unsigned char *image,
 		black_pixels=0;
 		for (int x = left; x <= right; x++)
 		{
-    			if (image[y * stride + x] < 128)
+    			if (image[y * stride + x] ==colors)
     			{
         			black_pixels++;
     			}
@@ -230,7 +232,7 @@ int detect_grid_dimensions(const unsigned char *image,
 		black_pixels=0;
 		for (int y=top; y<=bottom; y++)
 		{
-			if (image[y*stride+x]<128)
+			if (image[y*stride+x]==colors)
 			{
 				black_pixels++;
 			}

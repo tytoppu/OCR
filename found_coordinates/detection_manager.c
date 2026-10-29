@@ -8,6 +8,7 @@
 #include "detection/cell_detection.h"
 #include "detection/word_list_detection.h"
 #include "detection/letter_detection.h"
+#include "detection/dominant_color.h"
 
 //Frees all the memory used by DetectionData.
  
@@ -60,17 +61,24 @@ int run_detection(const unsigned char *image,
     }
 
     memset(data, 0, sizeof(*data));
+    DominantColor color = detect_dominant_color(image,width,height,stride);
+    int colors;
+    if (color == BLACK)
+    	colors=0;
+    else
+    	colors=255;
+
 
     if (!detect_grid_bounds(image, width, height, stride,
-                            &data->grid))
+                            &data->grid,colors))
     {
         goto error;
     }
 
-    if (!detect_grid_dimensions(image, width, height, stride, &data->grid))
+    if (!detect_grid_dimensions(image, width, height, stride, &data->grid,colors))
     	return 0;
     if (!detect_word_list_bounds(image, width, height, stride,
-                                 &data->grid, &data->word_list))
+                                 &data->grid, &data->word_list,colors))
     {
         goto error;
     }
@@ -83,7 +91,7 @@ int run_detection(const unsigned char *image,
 	
     if (!detect_words_bounds(image, width, height, stride,
                              &data->word_list,
-                             &data->words, &data->word_count))
+                             &data->words, &data->word_count,colors))
     {
         goto error;
     }
@@ -96,7 +104,7 @@ int run_detection(const unsigned char *image,
     }
 
     if (!detect_word_letters(image, width, height, stride,
-                             data->words, data->word_count))
+                             data->words, data->word_count,colors))
     {
         goto error;
     }

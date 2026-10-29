@@ -19,7 +19,8 @@ int detect_word_list_bounds(const unsigned char *image,
                             int height,
                             int stride,
                             const GridCoordinates *grid,
-                            WordListCoordinates *word_list);
+                            WordListCoordinates *word_list,
+			    int colors);
 
 
 
@@ -35,7 +36,7 @@ int detect_words_bounds(const unsigned char *image,
                         int stride,
                         const WordListCoordinates *word_list,
                         DetectedWord **words,
-                        int *word_count);
+                        int *word_count, int colors);
 
 
 

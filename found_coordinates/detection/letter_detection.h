@@ -23,7 +23,8 @@ int detect_word_letters(const unsigned char *image,
                         int height,
                         int stride,
                         DetectedWord *words,
-                        int word_count);
+                        int word_count,
+			int color);
 
 #endif /* LETTER_DETECTION_H */
 

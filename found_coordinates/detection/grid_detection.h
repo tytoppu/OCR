@@ -11,14 +11,17 @@ int detect_grid_bounds(const unsigned char *image,
                        int width,
                        int height,
                        int stride,
-                       GridCoordinates *grid);
+                       GridCoordinates *grid,
+		       int colors
+		       );
 
 int detect_grid_dimensions(
     const unsigned char *image,
     int width,
     int height,
     int stride,
-    GridCoordinates *grid
+    GridCoordinates *grid,
+    int colors
 );
 
 

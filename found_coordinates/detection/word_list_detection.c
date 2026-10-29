@@ -16,10 +16,11 @@ black = 0 white = 255. */
 static int is_ink(const unsigned char *image,
                   int stride,
                   int x,
-                  int y)
+                  int y,
+		  int colors)
 {
     return image[(size_t)y * (size_t)stride + (size_t)x]
-           < INK_THRESHOLD;
+           ==colors;
 }
 
 static void set_rectangle(Rectangle *r,
@@ -54,7 +55,8 @@ static int find_bounds_in_region(const unsigned char *image,
                                  int *min_y,
                                  int *max_x,
                                  int *max_y,
-                                 int *ink_count)
+                                 int *ink_count,
+				 int colors)
 {
     *min_x = width;
     *min_y = height;
@@ -73,7 +75,7 @@ static int find_bounds_in_region(const unsigned char *image,
 
     for (int y = 0; y < height; ++y) {
         for (int x = x_start; x <= x_end; ++x) {
-            if (is_ink(image, stride, x, y)) {
+            if (is_ink(image, stride, x, y,colors)) {
                 if (x < *min_x)
                     *min_x = x;
 
@@ -109,7 +111,8 @@ int detect_word_list_bounds(const unsigned char *image,
                             int height,
                             int stride,
                             const GridCoordinates *grid,
-                            WordListCoordinates *word_list)
+                            WordListCoordinates *word_list,
+			    int colors)
 {
     int lminx, lminy, lmaxx, lmaxy, lcount;
     int rminx, rminy, rmaxx, rmaxy, rcount;
@@ -132,14 +135,14 @@ int detect_word_list_bounds(const unsigned char *image,
                           0, grid_left - 1,
                           &lminx, &lminy,
                           &lmaxx, &lmaxy,
-                          &lcount);
+                          &lcount,colors);
 
     find_bounds_in_region(image,
                           width, height, stride,
                           grid_right + 1, width - 1,
                           &rminx, &rminy,
                           &rmaxx, &rmaxy,
-                          &rcount);
+                          &rcount,colors);
 
 
     /* Chooses the side containing the most dark pixels. */
@@ -150,15 +153,19 @@ int detect_word_list_bounds(const unsigned char *image,
 
     if (lcount > 0 &&
         (rcount == 0 || lcount >= rcount)) {
-
-        word_list->side = WORD_LIST_LEFT;
+	if (colors==0)
+        	word_list->side = 255;
+	else
+		word_list->side=0;
 
         set_rectangle(&word_list->bounds,
                       lminx, lminy, lmaxx, lmaxy);
 
     } else {
-
-        word_list->side = WORD_LIST_RIGHT;
+	if (colors==0)
+        	word_list->side = 255 ;
+	else
+		word_list->side=0;
 
         set_rectangle(&word_list->bounds,
                       rminx, rminy, rmaxx, rmaxy);
@@ -186,7 +193,8 @@ int detect_words_bounds(const unsigned char *image,
                         int stride,
                         const WordListCoordinates *word_list,
                         DetectedWord **words,
-                        int *word_count)
+                        int *word_count,
+			int colors)
 {
     int x_min, x_max, y_min, y_max;
     int capacity = 0;
@@ -224,17 +232,22 @@ int detect_words_bounds(const unsigned char *image,
 * The extra margin helps to properly close
 * the last line of text.
 */
+    int inv;
+    if (colors==0)
+    	inv=250;
+    else
+	inv=0;
 
 
     for (int y = y_min;
-         y <= y_max + MAX_BLANK_GAP + 1;
+         y <= y_max + inv + 1;
          ++y) {
 
         int row_has_ink = 0;
 
         if (y <= y_max) {
             for (int x = x_min; x <= x_max; ++x) {
-                if (is_ink(image, stride, x, y)) {
+                if (is_ink(image, stride, x, y,colors)) {
                     row_has_ink = 1;
                     break;
                 }
@@ -252,7 +265,7 @@ int detect_words_bounds(const unsigned char *image,
         } else if (in_band) {
             ++blank_rows;
 
-            if (blank_rows > MAX_BLANK_GAP) {
+            if (blank_rows > inv) {
                 int band_end = y - blank_rows;
                 int word_min_x = width;
                 int word_max_x = -1;
@@ -268,7 +281,7 @@ int detect_words_bounds(const unsigned char *image,
                      ++yy) {
 
                     for (int x = x_min; x <= x_max; ++x) {
-                        if (is_ink(image, stride, x, yy)) {
+                        if (is_ink(image, stride, x, yy,colors)) {
                             if (x < word_min_x)
                                 word_min_x = x;
 

@@ -2,13 +2,17 @@
 #define DOMINANT_COLOR_H
 
 
-#include "../structure/detection_data.h"
+#include "../structures/detection_data.h"
 
 
 
 
-DominantColor detect_dominant_color();
-
+DominantColor detect_dominant_color(
+const unsigned char *image,
+int width,
+int height,
+int stride
+);
 
 
 

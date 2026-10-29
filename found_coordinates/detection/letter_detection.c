@@ -64,7 +64,8 @@ int detect_word_letters(const unsigned char *image,
                         int height,
                         int stride,
                         DetectedWord *words,
-                        int word_count)
+                        int word_count,
+			int colors)
 {
     int w;
 
@@ -101,7 +102,7 @@ int detect_word_letters(const unsigned char *image,
 
             for (y = y_min; y < y_max; y++)
             {
-                if (image[y * stride + x] < 128)
+                if (image[y * stride + x] ==colors)
                 {
                     has_black = 1;
                     break;
@@ -144,7 +145,7 @@ int detect_word_letters(const unsigned char *image,
             {
                 for (y = y_min; y < y_max; y++)
                 {
-                    if (image[y * stride + x] < 128)
+                    if (image[y * stride + x] ==colors)
                     {
                         has_black = 1;
                         break;
