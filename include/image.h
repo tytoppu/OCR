@@ -69,8 +69,6 @@ void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 
 
 
-
-
 /* ========================================
                 filter.c
 ======================================== */
@@ -80,6 +78,7 @@ void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 //Uint8 GrayAt(SDL_PixelFormat *form, Uint8* p);
 void contigu (struct simple_surface* simple, int histogram[256], int* lower_pix, int* highter_pix);
 void insert_array(Uint8 array[9], int* size, Uint8 elem);
+//int seuillage(struct simple_surface* simple, int histogram[256]);
 
 
 // grayscale
@@ -102,7 +101,8 @@ struct simple_surface* contrast(struct simple_surface* simple, int histogram[256
 
 // black_and_white
 
-Uint8 single_Otsu(Uint8 gray, int array);
+Uint8 single_black_and_white(Uint8 gray);
+struct simple_surface* black_and_white(struct simple_surface* simple);
 
 
 // rotate image

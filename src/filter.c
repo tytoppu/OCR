@@ -54,6 +54,21 @@ void contigu (struct simple_surface* simple, int histogram[256], int* lower_pix,
 }
 
 
+/*
+int seuillage(struct simple_surface* simple, int histogram[256]){
+        calcul la valeur inferieur de seuillage pour otsu
+
+    int seuil = simple->w * simple->h * 0.5;
+
+    int i = 0;
+    int parcourt_histo = histogram[i];
+    while (parcourt_histo <= seuil && i < 255){
+        i ++;
+        parcourt_histo += histogram[i];
+    }
+    return i;
+}
+*/
 
 void insert_array(Uint8 array[9], int* size, Uint8 elem){
     /*
@@ -229,13 +244,16 @@ struct simple_surface* contrast(struct simple_surface* simple, int histogram[256
         return contraster;
     }
 
+    //for(size_t i = 0; i<256; i++) histogram[i] = 0;
+    Uint8 gray;
     int y = 0;
     int x = 0;
     while(y < h){
         x = 0;
         while(x < w){
-            contraster->gray[y*w + x] = 
-                single_contrast(simple->gray[y*w + x], lower_pix, highter_pix);
+            gray = single_contrast(simple->gray[y*w + x], lower_pix, highter_pix);
+            //histogram[gray]++;
+            contraster->gray[y*w + x] = gray;
 
             x++;
         }
@@ -249,13 +267,43 @@ struct simple_surface* contrast(struct simple_surface* simple, int histogram[256
 /* =======================================
             black_and_white
 ======================================== */
-/*
-Uint8 single_Otsu(Uint8 gray, int array){
-    if (gray < 127) return 0;
+
+Uint8 single_black_and_white(Uint8 gray){
+    /*
+     * return pour un pixel si il doit etre blanc ou noir 
+     */
+
+    if (gray < 128) return 0;
     return 255;
 }
-*/
 
+
+struct simple_surface* black_and_white(struct simple_surface* simple){
+    /*
+     * binarise une image
+     */
+
+    int w = simple->w;
+    int h = simple->h;
+    struct simple_surface* bin = init_simple_surface(w, h);
+
+    //int seuil = seuillage(simple, histogram);
+
+    //black_and_white[2] = {0};
+    int y = 0;
+    int x = 0;
+    while(y < h){
+        x = 0;
+        while(x < w){
+            //black_and_white[bin==255] ++;
+            bin->gray[y*w + x] = single_black_and_white(simple->gray[y*w + x]);
+
+            x++;
+        }
+        y++;
+    }
+    return bin;
+}
 
 /* =======================================
             rotate image
@@ -321,19 +369,21 @@ struct simple_surface* normalizer(SDL_Surface *surface){
      * puis on finis par retourner un struct simple_surface
      */
 
+    save_picture(surface, "result_test/0.bmp");
+
     int histogram[256] = {0};
 
     struct simple_surface* grayscale = start_grayscale(surface);
-    //return grayscale;
 
     struct simple_surface* median = median_filter(grayscale, histogram);
     destroy_simple_surface(grayscale);
-    //return median;
 
     struct simple_surface* contraster = contrast(median, histogram);
     destroy_simple_surface(median);
-    //return contraster;
+
+    struct simple_surface* binary = black_and_white(contraster);
+    destroy_simple_surface(contraster);
 
     if(!contraster) err(EXIT_FAILURE, "normalizer FAILED");
-    return contraster;
+    return binary;
 }
