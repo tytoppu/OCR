@@ -6,9 +6,9 @@
 
 //
 //
-//checks if pixel is black //<128 otherwise white
+//checks if one pixel is black //<128 otherwise white
 
-static int is_black(const unsigned char *image,int width,int height,int stride,int x, int y,int colors)
+static int is_colors(const unsigned char *image,int width,int height,int stride,int x, int y,int colors)
 {
 	/*
 		return 1 if its black, 0 if its not
@@ -16,7 +16,7 @@ static int is_black(const unsigned char *image,int width,int height,int stride,i
     	(void)width;
 
     	if (x < 0 || y < 0 || x >= width || y >= height)
-        	errx(EXIT_FAILURE, "is_black : wrong input");
+        	errx(EXIT_FAILURE, "is_colors : wrong input");
 
     	return image[(size_t)y * (size_t)stride + (size_t)x] == colors;
 }
@@ -31,7 +31,7 @@ static int longest_black_run_in_row(const unsigned char *image,int width, int he
 
     	for (x = 0; x < width; x++)
     	{
-        	if (is_black(image, width, height, stride, x, y,colors))
+        	if (is_colors(image, width, height, stride, x, y, colors))
         	{
             		current_run++;
             		if (current_run > longest_run)
@@ -63,7 +63,7 @@ static int longest_black_run_in_column(const unsigned char *image,
 
     	for (y = 0; y < height; y++)
     	{
-        	if (is_black(image, width, height, stride, x, y,colors))
+        	if (is_colors(image, width, height, stride, x, y,colors))
         	{
             	current_run++;
             	if (current_run > longest_run)

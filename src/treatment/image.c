@@ -52,7 +52,7 @@ void pretreatment(SDL_Surface* surface){
             bounds = data.cells[y][x].bounds;
             chunck = make_chunck(normalized, bounds.top_left.x, bounds.top_left.y, 
                 bounds.bottom_right.x, bounds.bottom_right.y);
-            path = naming_point_bnp("test/image_decouping/CellCoordinates/", x, y);
+            path = naming_point_bnp("result_test/image_decouping/CellCoordinates/", x, y);
             save_simple(chunck, path);
             free(path);
             x++;
