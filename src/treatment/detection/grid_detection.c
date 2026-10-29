@@ -10,6 +10,9 @@
 
 static int is_black(const unsigned char *image,int width,int height,int stride,int x, int y,int colors)
 {
+	/*
+		return 1 if its black, 0 if its not
+	*/
     	(void)width;
 
     	if (x < 0 || y < 0 || x >= width || y >= height)
@@ -19,7 +22,7 @@ static int is_black(const unsigned char *image,int width,int height,int stride,i
 }
 
 
-
+//search for the longest row
 static int longest_black_run_in_row(const unsigned char *image,int width, int height, int stride, int y, int colors)
 {
     	int x;
@@ -80,7 +83,7 @@ static int longest_black_run_in_column(const unsigned char *image,
 
 //looking for grid coordinates
 
-//stride -> number of bytes between the start of 2 consecutive lines
+//stride -> number of bytes between the start of 2 consecutive lines : pitch
 int detect_grid_bounds(const unsigned char *image,
                        int width,
                        int height,
