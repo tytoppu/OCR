@@ -1,4 +1,6 @@
 #include "cell_detection.h"
+#include <err.h>
+#include <stdlib.h>
 
 
 
@@ -14,11 +16,8 @@
 * Returns 1 on success, 0 on error.
 */
 
-#include <err.h>
-#include <stdlib.h>
-#include "cell_detection.h"
 
-int build_cells(const GridCoordinates *grid, CellCoordinates ***cells)
+void build_cells(const GridCoordinates *grid, CellCoordinates ***cells)
 {
     if (grid == NULL || cells == NULL ||
         grid->rows <= 0 || grid->columns <= 0 ||
@@ -83,7 +82,6 @@ int build_cells(const GridCoordinates *grid, CellCoordinates ***cells)
         }
     }
 
-    return 1;
 }
 
 
@@ -101,7 +99,7 @@ int build_cells(const GridCoordinates *grid, CellCoordinates ***cells)
 void free_cells(CellCoordinates **cells, int rows)
 {
     if (cells == NULL)
-        return;
+        errx(EXIT_FAILURE, "free_cells : cells is NULL, free null ?");
 
     for (int row = 0; row < rows; row++)
         free(cells[row]);

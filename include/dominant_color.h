@@ -1,18 +1,12 @@
 #ifndef DOMINANT_COLOR_H
 #define DOMINANT_COLOR_H
 
-
+#include "simple_surface.h"
 #include "detection_data.h"
 
 
 
-
-DominantColor detect_dominant_color(
-const unsigned char *image,
-int width,
-int height,
-int stride
-);
+DominantColor detect_writing_color(struct simple_surface* simple);
 
 
 

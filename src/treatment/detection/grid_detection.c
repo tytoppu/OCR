@@ -1,81 +1,74 @@
 #include "grid_detection.h"
-#include <stdio.h>
-#include <stddef.h>
 #include <err.h>
+#include <stdio.h>
 #include <stdlib.h>
 
-//
-//
-//checks if pixel is black //<128 otherwise white
 
-static int is_black(const unsigned char *image,int width,int height,int stride,int x, int y,int colors)
+//
+//
+//checks if one pixel is colors //<128 otherwise white
+
+int is_colors(struct simple_surface* simple,int x, int y,int colors)
 {
 	/*
-		return 1 if its black, 0 if its not
+		return 1 if its colors, 0 if its not
 	*/
-    	(void)width;
 
-    	if (x < 0 || y < 0 || x >= width || y >= height)
-        	errx(EXIT_FAILURE, "is_black : wrong input");
+    	if (!simple || x < 0 || y < 0 || x >= simple->w || y >= simple->h)
+        	errx(EXIT_FAILURE, "is_colors : wrong input");
 
-    	return image[(size_t)y * (size_t)stride + (size_t)x] == colors;
+    	return simple->gray[(size_t)y * (size_t)simple->w + (size_t)x] == colors;
 }
 
 
 //search for the longest row
-static int longest_black_run_in_row(const unsigned char *image,int width, int height, int stride, int y, int colors)
+int longest_black_run_in_row(struct simple_surface* simple, int y, int colors)
 {
-    	int x;
-    	int current_run = 0;
-    	int longest_run = 0;
-
-    	for (x = 0; x < width; x++)
-    	{
-        	if (is_black(image, width, height, stride, x, y,colors))
-        	{
-            		current_run++;
-            		if (current_run > longest_run)
-                		longest_run = current_run;
-        	}
-        	else
-        	{
-            		current_run = 0;
-        	}
-    	}
-
-    	return longest_run;
+	if (!simple) errx(EXIT_FAILURE, "longest_black_run_in_row : wrong input");
+	int x;
+    int current_run = 0;
+    int longest_run = 0;
+    	for (x = 0; x < simple->w; x++)
+   	{
+       	if (is_colors(simple, x, y, colors))
+       	{
+           	current_run++;
+           	if (current_run > longest_run)
+               	longest_run = current_run;
+       	}
+       	else
+       	{
+           	current_run = 0;
+       	}
+   	}
+   	return longest_run;
 }
 
 
 
 //search for the longest column
 
-static int longest_black_run_in_column(const unsigned char *image,
-                                       int width,
-                                       int height,
-                                       int stride,
-                                       int x,
-				       int colors)
+int longest_black_run_in_column(struct simple_surface* simple, int x, int colors)
 {
-    	int y;
-    	int current_run = 0;
-    	int longest_run = 0;
+	if (!simple) errx(EXIT_FAILURE, "longest_black_run_in_column : wrong input");
+   	int y;
+   	int current_run = 0;
+   	int longest_run = 0;
+    	for (y = 0; y < simple->h; y++)
+   	{
+       	if (is_colors(simple, x, y, colors))
+       	{
+           	current_run++;
+           	if (current_run > longest_run)
+               	longest_run = current_run;
+       	}
+       	else
+       	{
+			current_run = 0;
+       	}
+   	}
 
-    	for (y = 0; y < height; y++)
-    	{
-        	if (is_black(image, width, height, stride, x, y,colors))
-        	{
-            	current_run++;
-            	if (current_run > longest_run)
-                	longest_run = current_run;
-        	}
-        	else
-        	{
-            		current_run = 0;
-        	}
-    	}
-
-    return longest_run;
+   return longest_run;
 }
 
 
@@ -84,10 +77,7 @@ static int longest_black_run_in_column(const unsigned char *image,
 //looking for grid coordinates
 
 //stride -> number of bytes between the start of 2 consecutive lines : pitch
-int detect_grid_bounds(const unsigned char *image,
-                       int width,
-                       int height,
-                       int stride,
+void detect_grid_bounds(struct simple_surface* simple,
                        GridCoordinates *grid, int colors)
 {
     int x;
@@ -102,20 +92,19 @@ int detect_grid_bounds(const unsigned char *image,
     int horizontal_threshold;
     int vertical_threshold;
 
-    if (image == NULL || grid == NULL || width <= 0 || height <= 0 ||
-        stride < width)
+    if (!simple)
         errx(EXIT_FAILURE, "detect_grid_bounds : wrong input");
 //minimal black pixel length estimate
-    min_run = (width < height ? width : height) / 12;
+    min_run = (simple->w < simple->h ? simple->w : simple->h) / 12;
     if (min_run < 10)
         min_run = 10;
 
     horizontal_threshold = min_run;
     vertical_threshold = min_run;
 
-    for (y = 0; y < height; y++)
+    for (y = 0; y < simple->h; y++)
     {
-        int run = longest_black_run_in_row(image, width, height, stride, y,colors);
+        int run = longest_black_run_in_row(simple, y,colors);
 
         if (run >= horizontal_threshold)
         {
@@ -128,9 +117,9 @@ int detect_grid_bounds(const unsigned char *image,
         	}
     	}
 
-    	for (x = 0; x < width; x++)
+    	for (x = 0; x < simple->w; x++)
     	{
-        	int run = longest_black_run_in_column(image, width, height, stride, x,colors);
+        	int run = longest_black_run_in_column(simple, x,colors);
 
         	if (run >= vertical_threshold)
         	{
@@ -163,53 +152,31 @@ int detect_grid_bounds(const unsigned char *image,
     	grid->cell_width = 0;
     	grid->cell_height = 0;
 
-    	return 1;
 }
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-int detect_grid_dimensions(const unsigned char *image,
-                           int width,
-                           int height,
-                           int stride,
-                           GridCoordinates *grid,
-			   int colors)
+void detect_grid_dimensions(struct simple_surface* simple,
+							GridCoordinates *grid,
+						   	int colors)
 {
-	if (image == NULL || grid == NULL ||
-    		width <= 0 || height <= 0 || stride < width)
-	{
-    		errx(EXIT_FAILURE, "detect_grid_dimensions : wrong input");
-	}
+	if (!simple)
+		errx(EXIT_FAILURE, "detect_grid_dimensions : wrong input");
+
 	int left = grid->bounds.top_left.x;
 	int right = grid->bounds.top_right.x;
 	int top = grid->bounds.top_left.y;
 	int bottom = grid->bounds.bottom_left.y;
 	int grid_width = right - left + 1;
 	int black_pixels = 0;
-	if (left < 0 || right >= width ||
-    		top < 0 || bottom >= height ||
+
+	if (left < 0 || right >= simple->w ||
+    		top < 0 || bottom >= simple->h ||
     		right <= left || bottom <= top)
-	{
-    		errx(EXIT_FAILURE, "detect_grid_dimensions : wrong value in grid");
-	}
+		errx(EXIT_FAILURE, "detect_grid_dimensions : wrong value in grid");
+	
 	double black_ratio;
 	int horizontal_borders = 0;//counts number of edges detected
 	int in_border = 0; //indicates if already in a border
@@ -218,7 +185,7 @@ int detect_grid_dimensions(const unsigned char *image,
 		black_pixels=0;
 		for (int x = left; x <= right; x++)
 		{
-    			if (image[y * stride + x] ==colors)
+    			if (simple->gray[y * simple->w + x] ==colors)
     			{
         			black_pixels++;
     			}
@@ -249,7 +216,7 @@ int detect_grid_dimensions(const unsigned char *image,
 		black_pixels=0;
 		for (int y=top; y<=bottom; y++)
 		{
-			if (image[y*stride+x]==colors)
+			if (simple->gray[y*simple->w+x]==colors)
 			{
 				black_pixels++;
 			}
@@ -285,8 +252,6 @@ int detect_grid_dimensions(const unsigned char *image,
     	{
         	errx(EXIT_FAILURE, "detect_grid_dimensions : wrong result 2");
     	}
-
-    	return 1;
 
 }
 

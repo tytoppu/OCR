@@ -1,4 +1,9 @@
-#include "image.h"
+#include "bitmap.h"
+#include <SDL2/SDL_image.h>
+#include <err.h>
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
 /*
  * Ce fichier contient toute les fonction de chargement, 

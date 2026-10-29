@@ -1,10 +1,6 @@
 #ifndef COORDINATES_H
 #define COORDINATES_H
 
-
-
-
-
 //coordinate in pixels
 
 typedef struct

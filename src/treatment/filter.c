@@ -1,4 +1,8 @@
-#include "image.h"
+#include "filter.h"
+#include "bitmap.h"
+#include <err.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* 
     ce fichier est destine a toute les fonction qui servirons au pretraitment 

@@ -5,10 +5,11 @@
 #include "detection_data.h"
 
 
-int build_cells(const GridCoordinates *grid,
+void build_cells(const GridCoordinates *grid,
                 CellCoordinates ***cells);
 
 
 void free_cells(CellCoordinates **cells, int rows);
+
 
 #endif /* CELL_DETECTION_H */

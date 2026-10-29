@@ -1,12 +1,9 @@
 #include "image.h"
-#include "cell_detection.h"
-#include "coordinates.h"
-#include "detection_data.h"
+#include "bitmap.h"
+#include "filter.h"
 #include "detection_manager.h"
-#include "dominant_color.h"
-#include "grid_detection.h"
-#include "letter_detection.h"
-#include "word_list_detection.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 /*
  * normalise l'image
@@ -31,12 +28,10 @@ char* naming_point_bnp(const char* prefix, int x, int y) {
 void pretreatment(SDL_Surface* surface){
     struct simple_surface* normalized = normalizer(surface);
 
-    SDL_Surface* normalized_surface = simple_surface_to_surface(normalized);
+    //SDL_Surface* normalized_surface = simple_surface_to_surface(normalized);
 
     DetectionData data = {0};
-    if (run_detection(normalized_surface->pixels, normalized_surface->w, normalized_surface->h, normalized_surface->pitch, &data) != 1){
-        errx(EXIT_FAILURE, "pretreatment");
-    }
+    run_detection(normalized, &data);
 
     int x = 0;
     int y = 0;

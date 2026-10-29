@@ -1,17 +1,13 @@
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <err.h>
 #include "letter_detection.h"
-
-
+#include <err.h>
+#include <stdlib.h>
 /*
 * Copies the coordinates of the grid squares
 * to use them as coordinates for the letters.
 */
 
 
-int detect_grid_letters(const DetectionData *data,
+void detect_grid_letters(const DetectionData *data,
                         LetterCoordinates **letters,
                         int *letter_count)
 {
@@ -53,24 +49,19 @@ int detect_grid_letters(const DetectionData *data,
         }
     }
 
-    return 1;
 }
 
 
 //Identify the letters of a word by grouping the black pixels
 
-int detect_word_letters(const unsigned char *image,
-                        int width,
-                        int height,
-                        int stride,
+void detect_word_letters(struct simple_surface* simple,
                         DetectedWord *words,
                         int word_count,
 			int colors)
 {
     int w;
 
-    if (image == NULL || words == NULL ||
-        width <= 0 || height <= 0 || stride < width ||
+    if (!simple || words == NULL ||
         word_count < 0)
         errx(EXIT_FAILURE, "detect_word_letters : wrong input");
 
@@ -87,8 +78,8 @@ int detect_word_letters(const unsigned char *image,
 
         if (x_min < 0) x_min = 0;
         if (y_min < 0) y_min = 0;
-        if (x_max > width) x_max = width;
-        if (y_max > height) y_max = height;
+        if (x_max > simple->w) x_max = simple->w;
+        if (y_max > simple->h) y_max = simple->h;
 
         if (x_min >= x_max || y_min >= y_max)
             errx(EXIT_FAILURE, "detect_word_letters : wrong result");
@@ -103,7 +94,7 @@ int detect_word_letters(const unsigned char *image,
 
             for (y = y_min; y < y_max; y++)
             {
-                if (image[y * stride + x] ==colors)
+                if (simple->gray[y * simple->w + x] ==colors)
                 {
                     has_black = 1;
                     break;
@@ -146,7 +137,7 @@ int detect_word_letters(const unsigned char *image,
             {
                 for (y = y_min; y < y_max; y++)
                 {
-                    if (image[y * stride + x] ==colors)
+                    if (simple->gray[y * simple->w + x] ==colors)
                     {
                         has_black = 1;
                         break;
@@ -187,6 +178,5 @@ int detect_word_letters(const unsigned char *image,
         }
     }
 
-    return 1;
 }
 

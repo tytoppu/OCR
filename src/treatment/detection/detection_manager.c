@@ -1,15 +1,13 @@
 
-#include <stdlib.h>
-#include <string.h>
-#include <err.h>
-
 #include "detection_manager.h"
-
-#include "grid_detection.h"
 #include "cell_detection.h"
+#include "dominant_color.h"
+#include "grid_detection.h"
 #include "word_list_detection.h"
 #include "letter_detection.h"
-#include "dominant_color.h"
+#include <err.h>
+#include <stdlib.h>
+#include <string.h>
 
 //Frees all the memory used by DetectionData.
  
@@ -48,21 +46,11 @@ and fills the DetectionData structure.
 Returns 1 on success, 0 on error.
 */
 
-int run_detection(const unsigned char *image,
-                  int width,
-                  int height,
-                  int stride,
-               
-                  DetectionData *data)
-{
-    if (image == NULL || data == NULL ||
-        width <= 0 || height <= 0 || stride < width )
-    {
-        return -1;
-    }
+int run_detection(struct simple_surface* simple, DetectionData *data){
+    if (!simple || !data) err(EXIT_FAILURE, "run_detection : wrong input");
 
     memset(data, 0, sizeof(*data));
-    DominantColor color = detect_dominant_color(image,width,height,stride);
+    DominantColor color = detect_writing_color(simple);
     int colors;
     if (color == BLACK)
     	colors=0;
@@ -70,53 +58,26 @@ int run_detection(const unsigned char *image,
     	colors=255;
 
 
-    if (!detect_grid_bounds(image, width, height, stride,
-                            &data->grid,colors))
-    {
-        free_detection_data(data);
-        return 2;
-    }
+    detect_grid_bounds(simple,&data->grid,colors);
 
-    if (!detect_grid_dimensions(image, width, height, stride, &data->grid,colors))
-    	return 3;
-    if (!detect_word_list_bounds(image, width, height, stride,
-                                 &data->grid, &data->word_list,colors))
-    {
-        free_detection_data(data);
-        return 4;
-    }
+    detect_grid_dimensions(simple, &data->grid,colors);
 
-    if (!build_cells(&data->grid, &data->cells))
-    {
-        free_detection_data(data);
-        return 5;
-    }
+    detect_word_list_bounds(simple, &data->grid, &data->word_list,colors);
+
+
+
+    
+    build_cells(&data->grid, &data->cells);
+
     data->cell_count = data->grid.rows * data->grid.columns;
 	
-    if (!detect_words_bounds(image, width, height, stride,
-                             &data->word_list,
-                             &data->words, &data->word_count,colors))
-    {
-        free_detection_data(data);
-        return 6;
-    }
+    detect_words_bounds(simple,&data->word_list,&data->words, &data->word_count,colors);
 
-    if (!detect_grid_letters(data,
-                             &data->grid_letters,
-                             &data->grid_letter_count))
-    {
-        free_detection_data(data);
-        return 7;
-    }
+    detect_grid_letters(data,&data->grid_letters,&data->grid_letter_count);
 
-    if (!detect_word_letters(image, width, height, stride,
-                             data->words, data->word_count,colors))
-    {
-        free_detection_data(data);
-        return 8;
-    }
+    detect_word_letters(simple,data->words, data->word_count,colors);
 
-    return 1;
+    free_detection_data(data);
 }
 
 

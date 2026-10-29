@@ -1,8 +1,6 @@
 #include "word_list_detection.h"
-
-#include <stddef.h>
-#include <stdlib.h>
 #include <err.h>
+#include <stdlib.h>
 
 /* The image contains one byte per pixel:
 black = 0 white = 255. */
@@ -13,17 +11,16 @@ black = 0 white = 255. */
 #define INK_THRESHOLD 128
 #define MAX_BLANK_GAP 1
 
-static int is_ink(const unsigned char *image,
-                  int stride,
+int is_ink(struct simple_surface* simple,
                   int x,
                   int y,
 		  int colors)
 {
-    return image[(size_t)y * (size_t)stride + (size_t)x]
+    return simple->gray[(size_t)y * (size_t)simple->w + (size_t)x]
            ==colors;
 }
 
-static void set_rectangle(Rectangle *r,
+void set_rectangle(Rectangle *r,
                           int x_min,
                           int y_min,
                           int x_max,
@@ -45,10 +42,7 @@ static void set_rectangle(Rectangle *r,
 
 /* Calculates the bounding box of the dark pixels in an area. */
 
-static int find_bounds_in_region(const unsigned char *image,
-                                 int width,
-                                 int height,
-                                 int stride,
+int find_bounds_in_region(struct simple_surface* simple,
                                  int x_start,
                                  int x_end,
                                  int *min_x,
@@ -58,8 +52,8 @@ static int find_bounds_in_region(const unsigned char *image,
                                  int *ink_count,
 				 int colors)
 {
-    *min_x = width;
-    *min_y = height;
+    *min_x = simple->w;
+    *min_y = simple->h;
     *max_x = -1;
     *max_y = -1;
     *ink_count = 0;
@@ -67,15 +61,15 @@ static int find_bounds_in_region(const unsigned char *image,
     if (x_start < 0)
         x_start = 0;
 
-    if (x_end >= width)
-        x_end = width - 1;
+    if (x_end >= simple->w)
+        x_end = simple->w - 1;
 
     if (x_start > x_end)
         errx(EXIT_FAILURE, "find_bounds_in_region : wrong input");
 
-    for (int y = 0; y < height; ++y) {
+    for (int y = 0; y < simple->h; ++y) {
         for (int x = x_start; x <= x_end; ++x) {
-            if (is_ink(image, stride, x, y,colors)) {
+            if (is_ink(simple, x, y,colors)) {
                 if (x < *min_x)
                     *min_x = x;
 
@@ -106,10 +100,7 @@ static int find_bounds_in_region(const unsigned char *image,
 
 
 
-int detect_word_list_bounds(const unsigned char *image,
-                            int width,
-                            int height,
-                            int stride,
+void detect_word_list_bounds(struct simple_surface* simple,
                             const GridCoordinates *grid,
                             WordListCoordinates *word_list,
 			    int colors)
@@ -118,29 +109,25 @@ int detect_word_list_bounds(const unsigned char *image,
     int rminx, rminy, rmaxx, rmaxy, rcount;
     int grid_left, grid_right;
 
-    if (!image || !grid || !word_list ||
-        width <= 0 || height <= 0 || stride < width)
+    if (!simple || !word_list)
         errx(EXIT_FAILURE, "detect_word_list_bounds : wrong input");
-
 
     grid_left = grid->bounds.top_left.x;
     grid_right = grid->bounds.top_right.x;
 
     if (grid_left < 0 ||
-        grid_right >= width ||
+        grid_right >= simple->w ||
         grid_left >= grid_right)
         errx(EXIT_FAILURE, "detect_word_list_bounds : wrong input in grid");
 
-    find_bounds_in_region(image,
-                          width, height, stride,
+    find_bounds_in_region(simple,
                           0, grid_left - 1,
                           &lminx, &lminy,
                           &lmaxx, &lmaxy,
                           &lcount,colors);
 
-    find_bounds_in_region(image,
-                          width, height, stride,
-                          grid_right + 1, width - 1,
+    find_bounds_in_region(simple,
+                          grid_right + 1, simple->w - 1,
                           &rminx, &rminy,
                           &rmaxx, &rmaxy,
                           &rcount,colors);
@@ -172,7 +159,6 @@ int detect_word_list_bounds(const unsigned char *image,
                       rminx, rminy, rmaxx, rmaxy);
     }
 
-    return 1;
 }
 
 
@@ -188,10 +174,7 @@ int detect_word_list_bounds(const unsigned char *image,
 
 
 
-int detect_words_bounds(const unsigned char *image,
-                        int width,
-                        int height,
-                        int stride,
+void detect_words_bounds(struct simple_surface* simple,
                         const WordListCoordinates *word_list,
                         DetectedWord **words,
                         int *word_count,
@@ -211,8 +194,7 @@ int detect_words_bounds(const unsigned char *image,
     *words = NULL;
     *word_count = 0;
 
-    if (!image || !word_list ||
-        width <= 0 || height <= 0 || stride < width)
+    if (!simple || !word_list)
         errx(EXIT_FAILURE, "detect_words_bounds : wrong input");
 
     x_min = word_list->bounds.top_left.x;
@@ -220,8 +202,8 @@ int detect_words_bounds(const unsigned char *image,
     y_min = word_list->bounds.top_left.y;
     y_max = word_list->bounds.bottom_left.y;
 
-    if (x_min < 0 || x_max >= width ||
-        y_min < 0 || y_max >= height ||
+    if (x_min < 0 || x_max >= simple->w ||
+        y_min < 0 || y_max >= simple->h ||
         x_min > x_max || y_min > y_max)
         errx(EXIT_FAILURE, "detect_words_bounds : wrong input in word_list->bounds");
 
@@ -248,7 +230,7 @@ int detect_words_bounds(const unsigned char *image,
 
         if (y <= y_max) {
             for (int x = x_min; x <= x_max; ++x) {
-                if (is_ink(image, stride, x, y,colors)) {
+                if (is_ink(simple, x, y,colors)) {
                     row_has_ink = 1;
                     break;
                 }
@@ -268,7 +250,7 @@ int detect_words_bounds(const unsigned char *image,
 
             if (blank_rows > inv) {
                 int band_end = y - blank_rows;
-                int word_min_x = width;
+                int word_min_x = simple->w;
                 int word_max_x = -1;
 
 
@@ -282,7 +264,7 @@ int detect_words_bounds(const unsigned char *image,
                      ++yy) {
 
                     for (int x = x_min; x <= x_max; ++x) {
-                        if (is_ink(image, stride, x, yy,colors)) {
+                        if (is_ink(simple, x, yy,colors)) {
                             if (x < word_min_x)
                                 word_min_x = x;
 
@@ -344,8 +326,6 @@ int detect_words_bounds(const unsigned char *image,
     }
 
     *words = result;
-
-    return 1;
 }
 
 

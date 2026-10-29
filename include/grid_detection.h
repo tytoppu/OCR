@@ -2,24 +2,18 @@
 #define GRID_DETECTION_H
 
 #include "coordinates.h"
+#include "simple_surface.h"
 
 
 
 
-
-int detect_grid_bounds(const unsigned char *image,
-                       int width,
-                       int height,
-                       int stride,
+void detect_grid_bounds(struct simple_surface* simple,
                        GridCoordinates *grid,
 		       int colors
 		       );
 
-int detect_grid_dimensions(
-    const unsigned char *image,
-    int width,
-    int height,
-    int stride,
+void detect_grid_dimensions(
+    struct simple_surface* simple,
     GridCoordinates *grid,
     int colors
 );

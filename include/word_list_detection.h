@@ -2,7 +2,7 @@
 #ifndef WORD_LIST_DETECTION_H
 #define WORD_LIST_DETECTION_H
 
-#include "coordinates.h"
+#include "simple_surface.h"
 #include "detection_data.h"
 
 /**
@@ -14,10 +14,7 @@ returns 1 if the detection succeeds, 0 in case of failure.
 */
 
 
-int detect_word_list_bounds(const unsigned char *image,
-                            int width,
-                            int height,
-                            int stride,
+void detect_word_list_bounds(struct simple_surface* simple,
                             const GridCoordinates *grid,
                             WordListCoordinates *word_list,
 			    int colors);
@@ -30,10 +27,7 @@ int detect_word_list_bounds(const unsigned char *image,
 */
 
 
-int detect_words_bounds(const unsigned char *image,
-                        int width,
-                        int height,
-                        int stride,
+void detect_words_bounds(struct simple_surface* simple,
                         const WordListCoordinates *word_list,
                         DetectedWord **words,
                         int *word_count, int colors);
