@@ -1,8 +1,8 @@
-#include "../include/ai1.h"
-#include "../include/forward.h"
-#include "../include/image.h"
-#include "../include/saving_progress.h"
-#include "../include/back_propagation.h"
+#include "ai1.h"
+#include "forward.h"
+#include "ancient_image.h"
+#include "saving_progress.h"
+#include "back_propagation.h"
 #include <stdlib.h>
 #include<unistd.h>
 

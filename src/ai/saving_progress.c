@@ -1,4 +1,4 @@
-#include "../include/saving_progress.h"
+#include "saving_progress.h"
 
 void load_ai(struct network *network, char *filename)
 {

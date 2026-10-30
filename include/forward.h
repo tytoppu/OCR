@@ -3,7 +3,7 @@
 
 #include <math.h>
 #include "ai1.h"
-#include "image.h"
+#include "ancient_image.h"
 
 
 void forward_network(struct network *network);

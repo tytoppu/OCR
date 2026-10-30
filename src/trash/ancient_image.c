@@ -1,4 +1,4 @@
-#include "../include/image.h"
+#include "ancient_image.h"
 
 static uint16_t read_u16(FILE *f, int *ok)
 {
