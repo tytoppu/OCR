@@ -3,7 +3,7 @@
 
 #include <SDL2/SDL.h>
 
-struct simple_surface {      // suppose que l'image a été grayscalée
+struct simple_surface {      // assumes the image has been grayscaled
     int w;
     int h;
     Uint8 *gray;
@@ -15,15 +15,15 @@ struct cell_grid {
     struct simple_surface*** simple;   // cells[row][col]
 };
 
-struct word_liste{
-    struct letre_list* letre;
+struct word_list{
+    struct letter_list* letters;
     struct simple_surface* word;
-    struct word_liste* next;
+    struct word_list* next;
 };
 
-struct letre_list{
-    struct simple_surface* letre;
-    struct letre_list* next;
+struct letter_list{
+    struct simple_surface* letter;
+    struct letter_list* next;
 };
 
 #endif

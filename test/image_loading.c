@@ -39,26 +39,26 @@ void test_normalizer_steps(SDL_Surface *surface){
     destroy_simple_surface(grayscale);
     save_simple(median, "result_test/2.bmp");
 
-    struct simple_surface* contraster = contrast(median, histogram);
+    struct simple_surface* contrasted = contrast(median, histogram);
     destroy_simple_surface(median);
-    save_simple(contraster, "result_test/3.bmp");
+    save_simple(contrasted, "result_test/3.bmp");
 
 
-    struct simple_surface* binary = black_and_white(contraster);
-    destroy_simple_surface(contraster);
+    struct simple_surface* binary = black_and_white(contrasted);
+    destroy_simple_surface(contrasted);
     save_simple(binary, "result_test/4.bmp");
 
     destroy_simple_surface(binary);
 }
 
-void test_make_chunck(struct simple_surface* init, int x1, int y1, int x2, int y2){
-    struct simple_surface* simple = make_chunck(init, x1, y1, x2, y2);
+void test_make_chunk(struct simple_surface* init, int x1, int y1, int x2, int y2){
+    struct simple_surface* simple = make_chunk(init, x1, y1, x2, y2);
     easy_save(simple, "result_test/chunk.bmp");
 }
 
 
-void test_rotate_picture(struct simple_surface* simple, double angle, Uint8 font){
-    struct simple_surface* new = rotate_picture(simple, angle, font);
+void test_rotate_picture(struct simple_surface* simple, double angle, Uint8 background){
+    struct simple_surface* new = rotate_picture(simple, angle, background);
     easy_save(new, "result_test/getrotated.bmp");
 }
 
@@ -71,7 +71,7 @@ void test_rotate_picture(struct simple_surface* simple, double angle, Uint8 font
 int main(int argc, char *argv[])
 {
     if (argc != 2) errx(EXIT_FAILURE, "Wrong input");
-    SDL_Surface* surface = load_standar_picture (argv[1]);
+    SDL_Surface* surface = load_standard_picture (argv[1]);
     if (!surface) errx(EXIT_FAILURE, "Wrong input");
 
     //struct simple_surface* simple = start_grayscale(surface);
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
     //test_normalizer(surface);
 
-    //test_make_chunck(simple, 10, 0, 99, 499);
+    //test_make_chunk(simple, 10, 0, 99, 499);
 
     //test_rotate_picture(simple, 0, 125);
 

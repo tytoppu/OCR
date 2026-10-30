@@ -9,34 +9,34 @@ black = 0 white = 255. */
 
 
 
-void detect_words_bounds(struct simple_surface* list, struct word_liste** word, Uint8 ancre){
+void detect_words_bounds(struct simple_surface* list, struct word_list** word, Uint8 anchor){
 
     int *col = calloc(list->w, sizeof(int));
     int *row = calloc(list->h, sizeof(int));
     if (!row || !col) errx(EXIT_FAILURE, "detect_words_bounds : calloc");
-    where_is_anchor(list, col, row, ancre);
+    where_is_anchor(list, col, row, anchor);
     free(col);
 
-    struct word_liste* word_l = NULL;
+    struct word_list* word_l = NULL;
 
     //int len_min = list->h * 0.01;
     int y_start = 0;
     //int len = 0;
-    int seuil = list->w /100 + 1;
-    int flag = 0;           // 1 quand est en mode noire et 0 sinon (sur les bande)
+    int threshold = list->w /100 + 1;
+    int flag = 0;           // 1 when in black mode and 0 otherwise (on the bands)
     int y = 0;
 
 
 
 
     while(y < list->h){
-        if (row[y] < seuil){
+        if (row[y] < threshold){
             if(flag == 1) {
                 if (y - y_start >= 5){
-                    struct word_liste* new = init_word_liste();
-                    new->word = mini_scrap(list, 0, y_start, list->w-1, y-1, ancre);
-                    //make_chunck(list, 0, y_start, list->w-1, y-1);
-                    append_word_liste(&word_l, new);
+                    struct word_list* new = init_word_list();
+                    new->word = mini_scrap(list, 0, y_start, list->w-1, y-1, anchor);
+                    //make_chunk(list, 0, y_start, list->w-1, y-1);
+                    append_word_list(&word_l, new);
                 }
                 flag = 0;
                 //len = 0;
@@ -53,9 +53,9 @@ void detect_words_bounds(struct simple_surface* list, struct word_liste** word, 
 
     }
     if (flag == 1 && y - y_start >= 5){ 
-        struct word_liste* new = init_word_liste();
-        new->word = mini_scrap(list, 0, y_start, list->w-1, y - 1, ancre);
-        append_word_liste(&word_l, new);
+        struct word_list* new = init_word_list();
+        new->word = mini_scrap(list, 0, y_start, list->w-1, y - 1, anchor);
+        append_word_list(&word_l, new);
     }
 
     free(row);
@@ -63,26 +63,26 @@ void detect_words_bounds(struct simple_surface* list, struct word_liste** word, 
 }
 
 
-void detect_word_letters(struct simple_surface* word, struct letre_list** letre, Uint8 ancre){
+void detect_word_letters(struct simple_surface* word, struct letter_list** letters, Uint8 anchor){
     int *col = calloc(word->w, sizeof(int));
     int *row = calloc(word->h, sizeof(int));
     if (!row || !col) errx(EXIT_FAILURE, "detect_word_letters : calloc");
-    where_is_anchor(word, col, row, ancre);
+    where_is_anchor(word, col, row, anchor);
     free(row);
 
-    struct letre_list* letre_l = NULL;
+    struct letter_list* letter_l = NULL;
 
     int x_start = 0;
-    int seuil = word->h /100 + 1;
-    int flag = 0;           // 1 quand est en mode noire et 0 sinon (sur les bande)
+    int threshold = word->h /100 + 1;
+    int flag = 0;           // 1 when in black mode and 0 otherwise (on the bands)
     int x = 0;
     while(x < word->w){
-        if (col[x] < seuil){
+        if (col[x] < threshold){
             if(flag == 1) {
                 if (x - x_start >= 2){
-                    struct letre_list* new = init_letre_list();
-                    new->letre = mini_scrap(word, x_start, 0, x-1, word->h-1, ancre);
-                    append_letre_list(&letre_l, new);
+                    struct letter_list* new = init_letter_list();
+                    new->letter = mini_scrap(word, x_start, 0, x-1, word->h-1, anchor);
+                    append_letter_list(&letter_l, new);
                 }
                 flag = 0;
             }
@@ -97,23 +97,23 @@ void detect_word_letters(struct simple_surface* word, struct letre_list** letre,
 
     }
     if (flag == 1 && x - x_start >= 2){ 
-        struct letre_list* new = init_letre_list();
-        new->letre = mini_scrap(word, x_start, 0, x-1, word->h-1, ancre);
-        append_letre_list(&letre_l, new);
+        struct letter_list* new = init_letter_list();
+        new->letter = mini_scrap(word, x_start, 0, x-1, word->h-1, anchor);
+        append_letter_list(&letter_l, new);
     }
 
     free(col);
-    *letre = letre_l;
+    *letters = letter_l;
 }
 
 
-void detect_everything_in_list(struct simple_surface* list, struct word_liste** word_l,Uint8 ancre){
-    struct word_liste* word = NULL;
-    detect_words_bounds(list, &word, ancre);
-    struct word_liste* parcourt = word;
-    while(parcourt){
-        detect_word_letters(parcourt->word, &(parcourt->letre), ancre);
-        parcourt = parcourt->next;
+void detect_everything_in_list(struct simple_surface* list, struct word_list** word_l,Uint8 anchor){
+    struct word_list* word = NULL;
+    detect_words_bounds(list, &word, anchor);
+    struct word_list* current = word;
+    while(current){
+        detect_word_letters(current->word, &(current->letters), anchor);
+        current = current->next;
     }
     *word_l = word;
 }

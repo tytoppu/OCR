@@ -11,20 +11,20 @@
 
 
 
-void run_detection(struct simple_surface* simple, struct cell_grid** cell, struct word_liste** word, Uint8 ancre){
+void run_detection(struct simple_surface* simple, struct cell_grid** cell, struct word_list** word, Uint8 anchor){
 
     if (!simple) err(EXIT_FAILURE, "run_detection : wrong input");
 
     struct simple_surface* grid = NULL;
     struct simple_surface* list = NULL;
-    detect_grid_and_list(simple, &grid, &list, ancre);
+    detect_grid_and_list(simple, &grid, &list, anchor);
 
-    build_cells(grid, cell, ancre);
+    build_cells(grid, cell, anchor);
 
-    detect_everything_in_list(list, word, ancre);
+    detect_everything_in_list(list, word, anchor);
 
     destroy_simple_surface(grid);
-    destroy_simple_surface(list);   // tend ca nique tous
+    destroy_simple_surface(list);
 
 }
 

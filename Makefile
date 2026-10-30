@@ -29,9 +29,9 @@ solver:
 
 clean:
 	$(RM) $(TARGET) $(OBJS) image $(OBJS_image)
-	$(RM) result_test/test_image_decouping/list/leters/*.bmp
-	$(RM) result_test/test_image_decouping/list/words/*.bmp
-	$(RM) result_test/test_image_decouping/grid/*.bmp
+	$(RM) result_test/test_image_cutting/list/letters/*.bmp
+	$(RM) result_test/test_image_cutting/list/words/*.bmp
+	$(RM) result_test/test_image_cutting/grid/*.bmp
 
 
 .PHONY: all clean

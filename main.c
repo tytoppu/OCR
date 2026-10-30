@@ -10,7 +10,7 @@
 
 int main(int argc, char *argv[]){
     if (argc != 3) errx(EXIT_FAILURE, "Wrong input");
-    SDL_Surface* surface = load_standar_picture (argv[1]);
+    SDL_Surface* surface = load_standard_picture (argv[1]);
     if (!surface) errx(EXIT_FAILURE, "Wrong input");
 
     pretreatment(surface, atof(argv[2]));

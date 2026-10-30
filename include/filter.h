@@ -6,9 +6,9 @@
 
 #define CONTIGUITY 0.05
 
-// auxiliaire
+// helpers
 
-void contigu (struct simple_surface* simple, int histogram[256], int* lower_pix, int* highter_pix);
+void contiguous (struct simple_surface* simple, int histogram[256], int* lower_pix, int* higher_pix);
 void insert_array(Uint8 array[9], int* size, Uint8 elem);
 
 
@@ -33,7 +33,7 @@ struct simple_surface* contrast(struct simple_surface* simple, int histogram[256
 // black_and_white
 
 Uint8 single_black_and_white(Uint8 gray);
-struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* ancre);
+struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* anchor);
 
 
 // rotate image
@@ -43,6 +43,6 @@ int evaluate_rotation(struct simple_surface* simple, double angle);
 
 // MAIN : normalizer
 
-struct simple_surface* normalizer(SDL_Surface *surface, double angle, Uint8* ancre);
+struct simple_surface* normalizer(SDL_Surface *surface, double angle, Uint8* anchor);
 
 #endif  /* FILTER_H */

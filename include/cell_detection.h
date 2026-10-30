@@ -6,12 +6,12 @@
 #include "simple_surface.h"
 
 
-void corelation(double* array, int size, double** output_correlation);
-//int cell_width_detector(struct simple_surface* simple, Uint8 ancre);
-//int cell_height_detector(struct simple_surface* simple, Uint8 ancre);
-int cell_size_detector(struct simple_surface* simple, Uint8 ancre, char axe);
+void correlation(double* array, int size, double** output_correlation);
+//int cell_width_detector(struct simple_surface* simple, Uint8 anchor);
+//int cell_height_detector(struct simple_surface* simple, Uint8 anchor);
+int cell_size_detector(struct simple_surface* simple, Uint8 anchor, char axis);
 
-void build_cells(struct simple_surface* simple, struct cell_grid** cell, Uint8 ancre);
+void build_cells(struct simple_surface* simple, struct cell_grid** cell, Uint8 anchor);
 
 //void free_cells(CellCoordinates **cells, int rows);
 

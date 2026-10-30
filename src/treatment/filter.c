@@ -5,47 +5,47 @@
 #include <string.h>
 
 /* 
-    ce fichier est destine a toute les fonction qui servirons au pretraitment 
-    des couleur d'une image, pixel par pixel, pour la rendre + lisible par l'ia 
-    et nos algorithme de pretraitement (rotation, decoupage...)
+    this file is for all the functions used for the color preprocessing
+    of an image, pixel by pixel, to make it more readable for the ai
+    and our preprocessing algorithms (rotation, cutting...)
 */
 
 
 
 /* ========================================
-            auxiliaire
+            helpers
 ======================================== */
 
-void contigu (struct simple_surface* simple, int histogram[256], int* lower_pix, int* highter_pix){
+void contiguous (struct simple_surface* simple, int histogram[256], int* lower_pix, int* higher_pix){
     /*
-        calcul les valeur lower_pix et highter_pix des pixel
-        au CONTIGUITY % d'extremite (changeable ?)
+        computes the lower_pix and higher_pix values of the pixels
+        at CONTIGUITY % from the ends (changeable ?)
     */
 
-    int seuil = simple->w * simple->h * CONTIGUITY;     // calcul la contiguite
+    int threshold = simple->w * simple->h * CONTIGUITY;     // computes the contiguity
 
     int i = 0;
-    int parcourt_histo = histogram[i];
-    while (parcourt_histo <= seuil && i < 255){
+    int histo_sum = histogram[i];
+    while (histo_sum <= threshold && i < 255){
         i ++;
-        parcourt_histo += histogram[i];
+        histo_sum += histogram[i];
     }
     *lower_pix = i;
 
     i = 255;
-    parcourt_histo = histogram[i];
-    while (parcourt_histo <= seuil && i < 255){
+    histo_sum = histogram[i];
+    while (histo_sum <= threshold && i < 255){
         i --;
-        parcourt_histo += histogram[i];
+        histo_sum += histogram[i];
     }
-    *highter_pix = i;
+    *higher_pix = i;
 }
 
 
 void insert_array(Uint8 array[9], int* size, Uint8 elem){
     /*
-        insert un element dans l'aray de facon a le garder
-        trier en ordre croissant
+        inserts an element in the array so that it stays
+        sorted in ascending order
     */
 
     size_t i = 8;
@@ -64,8 +64,8 @@ void insert_array(Uint8 array[9], int* size, Uint8 elem){
 
 Uint8 single_grayscale(Uint8 r, Uint8 g, Uint8 b){
     /*
-        return la valeur grayscale d'un pixel celon
-        son RGB
+        returns the grayscale value of a pixel based on
+        its RGB
     */
 
     return (Uint8)(0.299 * r + 0.587 * g + 0.114 * b + 0.5);
@@ -75,8 +75,8 @@ Uint8 single_grayscale(Uint8 r, Uint8 g, Uint8 b){
 
 struct simple_surface* start_grayscale(SDL_Surface* surface){
     /*
-     * transphorm une image sous forme de surface en struct simple_surface 
-     * en metent tout les pixel en nuance de gris
+     * turns an image given as a surface into a struct simple_surface
+     * by putting all the pixels in shades of gray
      */
 
     int w = surface->w;
@@ -88,8 +88,8 @@ struct simple_surface* start_grayscale(SDL_Surface* surface){
     Uint8 b;
     Uint32 pixel;
 
-    int x = 0;      // pos sur la largeur (commence a gauche)
-    int y = 0;      // pos sur la heuteur (commence en haut)
+    int x = 0;      // position on the width (starts on the left)
+    int y = 0;      // position on the height (starts at the top)
 
     while(y < h){
         x = 0;
@@ -112,21 +112,21 @@ struct simple_surface* start_grayscale(SDL_Surface* surface){
 
 Uint8 single_median_filter(struct simple_surface* simple, int x, int y){
     /*
-     * renvoi la valeur median dans un carre de 3x3 autour 
-     * du pixel cible
+     * returns the median value in a 3x3 square around
+     * the target pixel
      */
 
     int w = simple->w;
     int h = simple->h;
     Uint8* gray = simple->gray;
 
-    int size = 0;                   // nombre de valeur enregistre
-    Uint8 array[9];       // tableau trie en ordre croissant avec les valeur grayscale des pixel
+    int size = 0;                   // number of values stored
+    Uint8 array[9];       // array sorted in ascending order with the grayscale values of the pixels
     for (int r = 0; r < 9; r++) {
         array[r] = 255;
     }
 
-    insert_array(array, &size, gray[y * w + x]);    // insert la valeur gray du pixel cible pointe par gray dans l'array (en updatent la tail)
+    insert_array(array, &size, gray[y * w + x]);    // inserts the gray value of the target pixel pointed by gray into the array (updating the size)
 
     if (x > 0) {
         insert_array(array, &size, gray[y * w + x - 1]);
@@ -142,7 +142,7 @@ Uint8 single_median_filter(struct simple_surface* simple, int x, int y){
     if (y > 0) insert_array(array, &size, gray[(y-1) * w + x]);
     if (y < h - 1) insert_array(array, &size, gray[(y+1) * w + x]);
 
-    // return la medianne
+    // returns the median
     if (size%2 == 0) return (array[size/2 - 1] + array[size/2]) / 2;
     else return array[size/2];
 }
@@ -150,9 +150,9 @@ Uint8 single_median_filter(struct simple_surface* simple, int x, int y){
 
 struct simple_surface* median_filter(struct simple_surface* simple, int histogram[256]){
     /*
-        prend une surface, creer une nouvelle surface vide appeller new, 
-        la rempli pixel par pixel avec le median filter, 
-        free l'ancienne surface et renvoi la new
+        takes a surface, creates a new empty surface called new,
+        fills it pixel by pixel with the median filter,
+        frees the old surface and returns the new one
     */
 
     int w = simple->w;
@@ -186,8 +186,8 @@ struct simple_surface* median_filter(struct simple_surface* simple, int histogra
 
 Uint8 single_contrast(Uint8 gray, Uint8 min, Uint8 max){
     /*
-        return la valeur grayscale d'un pixel, 
-        apres "contrastage" celon les pixel de 5% min et max
+        returns the grayscale value of a pixel,
+        after "contrasting" based on the 5% min and max pixels
     */
 
     int answer = (gray - min) * 255 / (max - min);
@@ -198,22 +198,22 @@ Uint8 single_contrast(Uint8 gray, Uint8 min, Uint8 max){
 
 struct simple_surface* contrast(struct simple_surface* simple, int histogram[256]){
     /*
-     * contrast tout les pixel d'une simple_surface,
-     * celon un histogram, et a CONTIGUITY % de contiguite
-     * return une nouvelle struct simple_surface
+     * contrasts all the pixels of a simple_surface,
+     * based on a histogram, with CONTIGUITY % contiguity
+     * returns a new struct simple_surface
     */
 
     int w = simple->w;
     int h = simple->h;
-    struct simple_surface* contraster = init_simple_surface(w, h);
+    struct simple_surface* contrasted = init_simple_surface(w, h);
 
     int lower_pix = -1;
-    int highter_pix = -1;
-    contigu (simple, histogram, &lower_pix, &highter_pix);
+    int higher_pix = -1;
+    contiguous (simple, histogram, &lower_pix, &higher_pix);
 
-    if (highter_pix <= lower_pix) {
-        memcpy(contraster->gray, simple->gray, w * h);
-        return contraster;
+    if (higher_pix <= lower_pix) {
+        memcpy(contrasted->gray, simple->gray, w * h);
+        return contrasted;
     }
 
     //for(size_t i = 0; i<256; i++) histogram[i] = 0;
@@ -223,15 +223,15 @@ struct simple_surface* contrast(struct simple_surface* simple, int histogram[256
     while(y < h){
         x = 0;
         while(x < w){
-            gray = single_contrast(simple->gray[y*w + x], lower_pix, highter_pix);
+            gray = single_contrast(simple->gray[y*w + x], lower_pix, higher_pix);
             //histogram[gray]++;
-            contraster->gray[y*w + x] = gray;
+            contrasted->gray[y*w + x] = gray;
 
             x++;
         }
         y++;
     }
-    return contraster;
+    return contrasted;
 }
 
 
@@ -242,7 +242,7 @@ struct simple_surface* contrast(struct simple_surface* simple, int histogram[256
 
 Uint8 single_black_and_white(Uint8 gray){
     /*
-     * return pour un pixel si il doit etre blanc ou noir 
+     * returns whether a pixel must be white or black
      */
 
     if (gray < 128) return 0;
@@ -250,9 +250,9 @@ Uint8 single_black_and_white(Uint8 gray){
 }
 
 
-struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* ancre){
+struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* anchor){
     /*
-     * binarise une image
+     * binarizes an image
      */
 
     int w = simple->w;
@@ -274,8 +274,8 @@ struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* anc
         }
         y++;
     }
-    if(black_and_white[0] >= black_and_white[1]) *ancre = 255;
-    else *ancre = 0;
+    if(black_and_white[0] >= black_and_white[1]) *anchor = 255;
+    else *anchor = 0;
     return bin;
 }
 
@@ -285,8 +285,8 @@ struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* anc
 
 /*
 int evaluate_rotation(struct simple_surface simple, double angle){
-     * renvoi un struct simple_surface 
-     * qui est le parametre simple mais rotate. rien n'a etait free
+     * returns a struct simple_surface
+     * which is the simple parameter but rotated. nothing was freed
 
     double theta = angle * M_PI / 180.0;
     double c = cos(theta);
@@ -320,7 +320,7 @@ int evaluate_rotation(struct simple_surface simple, double angle){
             if (x_s >= 0 && x_s < simple->w && y_s >= 0 && y_s < simple->h)
                 pixel = simple->gray[y_s * simple->w + x_s];
             else 
-                pixel = font;
+                pixel = background;
             rotate->gray[y * new_w + x] = pixel;
 
             x++;
@@ -336,11 +336,11 @@ int evaluate_rotation(struct simple_surface simple, double angle){
 ======================================== */
 
 
-struct simple_surface* normalizer(SDL_Surface *surface, double angle, Uint8* ancre){
+struct simple_surface* normalizer(SDL_Surface *surface, double angle, Uint8* anchor){
     /*
-     * tout les process de traitement d'une image, 
-     * apres avoir etait charge, une surface est traiter
-     * puis on finis par retourner un struct simple_surface
+     * all the processing steps of an image,
+     * after being loaded, a surface is processed
+     * then we end by returning a struct simple_surface
      */
 
     save_picture(surface, "result_test/0.bmp");
@@ -356,13 +356,13 @@ struct simple_surface* normalizer(SDL_Surface *surface, double angle, Uint8* anc
     struct simple_surface* median = median_filter(rotate, histogram);
     destroy_simple_surface(rotate);
 
-    struct simple_surface* contraster = contrast(median, histogram);
+    struct simple_surface* contrasted = contrast(median, histogram);
     destroy_simple_surface(median);
 
     ;
-    struct simple_surface* binary = black_and_white(contraster, ancre);
-    destroy_simple_surface(contraster);
+    struct simple_surface* binary = black_and_white(contrasted, anchor);
+    destroy_simple_surface(contrasted);
 
-    if(!contraster) err(EXIT_FAILURE, "normalizer FAILED");
+    if(!contrasted) err(EXIT_FAILURE, "normalizer FAILED");
     return binary;
 }

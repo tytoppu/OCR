@@ -6,8 +6,8 @@
 #include <string.h>
 
 /*
- * Ce fichier contient toute les fonction de chargement, 
- * et traitement elementaire de surface / image
+ * This file contains all the loading functions
+ * and the basic processing of surfaces / images
  */
 
 
@@ -19,18 +19,18 @@
 
 
 
-SDL_Surface* load_standar_picture (const char *path){
-    SDL_Surface* picure = IMG_Load(path);
-    if (!picure)
+SDL_Surface* load_standard_picture (const char *path){
+    SDL_Surface* picture = IMG_Load(path);
+    if (!picture)
         errx(EXIT_FAILURE, "IMG_Load: %s",SDL_GetError());
 
-    SDL_Surface* standar_picture = SDL_ConvertSurfaceFormat(picure,
+    SDL_Surface* standard_picture = SDL_ConvertSurfaceFormat(picture,
             SDL_PIXELFORMAT_ARGB8888, 0);
-    SDL_FreeSurface(picure);
-    if (!standar_picture)
+    SDL_FreeSurface(picture);
+    if (!standard_picture)
         errx(EXIT_FAILURE, "SDL_ConvertSurfaceFormat: %s",SDL_GetError());
 
-    return standar_picture;
+    return standard_picture;
 }
 
 void save_picture(SDL_Surface* surface, const char *path){
@@ -78,22 +78,22 @@ struct cell_grid* init_cell_grid(int w, int h){
 
 }
 
-struct word_liste* init_word_liste(void){
-    struct word_liste* new = malloc(sizeof(struct word_liste));
-    if(!new) errx(EXIT_FAILURE, "malloc in init_word_liste");
+struct word_list* init_word_list(void){
+    struct word_list* new = malloc(sizeof(struct word_list));
+    if(!new) errx(EXIT_FAILURE, "malloc in init_word_list");
 
-    new->letre = NULL;
+    new->letters = NULL;
     new->word = NULL;
     new->next = NULL;
 
     return new;
 }
 
-struct letre_list* init_letre_list(void){
-    struct letre_list* new = malloc(sizeof(struct letre_list));
-    if(!new) errx(EXIT_FAILURE, "malloc in init_letre_list");
+struct letter_list* init_letter_list(void){
+    struct letter_list* new = malloc(sizeof(struct letter_list));
+    if(!new) errx(EXIT_FAILURE, "malloc in init_letter_list");
 
-    new->letre = NULL;
+    new->letter = NULL;
     new->next = NULL;
 
     return new;
@@ -126,34 +126,34 @@ void destroy_cell_grid(struct cell_grid* grid){
     free(grid);   
 }
 
-void destroy_letre_list(struct letre_list* letre_l){
-    if(!letre_l) return;
-    //errx(EXIT_FAILURE, "destroy_letre_list : free nothing");
+void destroy_letter_list(struct letter_list* letter_l){
+    if(!letter_l) return;
+    //errx(EXIT_FAILURE, "destroy_letter_list : free nothing");
 
-    struct letre_list* parcourt = letre_l;
-    struct letre_list* prv = NULL;
-    while (parcourt){
-        prv = parcourt;
-        parcourt = parcourt->next;
+    struct letter_list* current = letter_l;
+    struct letter_list* prv = NULL;
+    while (current){
+        prv = current;
+        current = current->next;
 
-        destroy_simple_surface(prv->letre);
+        destroy_simple_surface(prv->letter);
         free(prv);
         prv = NULL;
 
     }
 }
 
-void destroy_word_liste(struct word_liste* word_l){
+void destroy_word_list(struct word_list* word_l){
     if(!word_l) return ;
-    //errx(EXIT_FAILURE, "init_word_liste : free nothing");
+    //errx(EXIT_FAILURE, "init_word_list : free nothing");
 
-    struct word_liste* parcourt = word_l;
-    struct word_liste* prv = NULL;
-    while (parcourt){
-        prv = parcourt;
-        parcourt = parcourt->next;
+    struct word_list* current = word_l;
+    struct word_list* prv = NULL;
+    while (current){
+        prv = current;
+        current = current->next;
 
-        destroy_letre_list(prv->letre);
+        destroy_letter_list(prv->letters);
         destroy_simple_surface(prv->word);
         free(prv);
         prv = NULL;
@@ -188,41 +188,41 @@ SDL_Surface* simple_surface_to_surface(struct simple_surface* simple){
     return new;
 }
 
-void append_word_liste(struct word_liste** word_l, struct word_liste* new){
-    if(!word_l) errx(EXIT_FAILURE, "append_word_liste : word_l does'n exist");
+void append_word_list(struct word_list** word_l, struct word_list* new){
+    if(!word_l) errx(EXIT_FAILURE, "append_word_list : word_l doesn't exist");
     
     if(!(*word_l)) {
         *word_l = new;
         return;
     }
 
-    struct word_liste* parcourt = *word_l;
-    while(parcourt->next) parcourt = parcourt->next;
-    parcourt->next = new;
+    struct word_list* current = *word_l;
+    while(current->next) current = current->next;
+    current->next = new;
 }
 
 
-void append_letre_list(struct letre_list** letre_l, struct letre_list* new){
-    if(!letre_l) errx(EXIT_FAILURE, "append_letre_list : letre_l does'n exist");
+void append_letter_list(struct letter_list** letter_l, struct letter_list* new){
+    if(!letter_l) errx(EXIT_FAILURE, "append_letter_list : letter_l doesn't exist");
     
-    if(!(*letre_l)) {
-        *letre_l = new;
+    if(!(*letter_l)) {
+        *letter_l = new;
         return;
     }
 
-    struct letre_list* parcourt = *letre_l;
-    while(parcourt->next) parcourt = parcourt->next;
-    parcourt->next = new;
+    struct letter_list* current = *letter_l;
+    while(current->next) current = current->next;
+    current->next = new;
 }
 
 /* ========================================
-        traitement elementaire
+        basic processing
 ======================================== */
 
-struct simple_surface* make_chunck(struct simple_surface* simple, int x1, int y1, int x2, int y2){
+struct simple_surface* make_chunk(struct simple_surface* simple, int x1, int y1, int x2, int y2){
     /*
-     * renvoi une struct simple_surface 
-     * contenent les pixel du chunck de (x1,y1) inclu a (x2y2) inclu
+     * returns a struct simple_surface
+     * containing the pixels of the chunk from (x1,y1) included to (x2,y2) included
      */
 
     if (x1 > x2) {
@@ -237,24 +237,24 @@ struct simple_surface* make_chunck(struct simple_surface* simple, int x1, int y1
     }
 
     if (x1 < 0 || x2 >= simple->w || y1 < 0 || y2 >= simple->h)
-        errx(EXIT_FAILURE, "make_chunck : Input error, invalid x or y");
+        errx(EXIT_FAILURE, "make_chunk : Input error, invalid x or y");
 
-    struct simple_surface* chunck = init_simple_surface(x2 - x1 + 1, y2 - y1 + 1);
-    if (!chunck) 
+    struct simple_surface* chunk = init_simple_surface(x2 - x1 + 1, y2 - y1 + 1);
+    if (!chunk) 
         errx(EXIT_FAILURE, "init_simple_surface");
 
-    for (int x = 0; x < chunck->w; x++){
-        for (int y = 0; y < chunck->h; y++)
-            chunck->gray[y*chunck->w + x] = simple->gray[(y+y1)*simple->w + (x+x1)];
+    for (int x = 0; x < chunk->w; x++){
+        for (int y = 0; y < chunk->h; y++)
+            chunk->gray[y*chunk->w + x] = simple->gray[(y+y1)*simple->w + (x+x1)];
     }
 
-    return chunck;
+    return chunk;
 }
 
-struct simple_surface* rotate_picture(struct simple_surface* simple, double angle, Uint8 font){
+struct simple_surface* rotate_picture(struct simple_surface* simple, double angle, Uint8 background){
     /*
-     * renvoi un struct simple_surface 
-     * qui est le parametre simple mais rotate. rien n'a etait free
+     * returns a struct simple_surface
+     * which is the simple parameter but rotated. nothing was freed
      */
 
     double theta = angle * M_PI / 180.0;
@@ -289,7 +289,7 @@ struct simple_surface* rotate_picture(struct simple_surface* simple, double angl
             if (x_s >= 0 && x_s < simple->w && y_s >= 0 && y_s < simple->h)
                 pixel = simple->gray[y_s * simple->w + x_s];
             else 
-                pixel = font;
+                pixel = background;
             rotate->gray[y * new_w + x] = pixel;
 
             x++;
@@ -308,7 +308,7 @@ struct simple_surface* rotate_picture(struct simple_surface* simple, double angl
 
 Uint32 get_pixel(SDL_Surface *surface, int x, int y){
     /*
-     * renvoi la valeur Uint32 d'un pixel
+     * returns the Uint32 value of a pixel
      */
 
     if(!surface) errx(EXIT_FAILURE, "get_pixel : no surface");
@@ -323,7 +323,7 @@ Uint32 get_pixel(SDL_Surface *surface, int x, int y){
 
 void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel){
     /*
-     * modifi directement un pixel dans une surface
+     * directly modifies a pixel in a surface
      */
 
     if(!surface) errx(EXIT_FAILURE, "set_pixel : no surface");

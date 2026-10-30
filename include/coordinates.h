@@ -25,7 +25,7 @@ typedef struct
 //grid info
 
 
-//à sup
+//to delete
 /*
 typedef struct
 {
@@ -39,7 +39,7 @@ typedef struct
 
 //say if list of words on the right or on the left
 
-//plus besoin
+//no longer needed
 /*
 typedef enum
 {
@@ -52,8 +52,8 @@ typedef enum
 /*
 typedef struct
 {
-    Rectangle bounds; //si on garde à remplir
-    WordListSide side;  // à enlever
+    Rectangle bounds; //to fill if we keep it
+    WordListSide side;  // to remove
 } WordListCoordinates;
 */
 #endif /* COORDINATES_H */

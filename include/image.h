@@ -30,10 +30,10 @@
 */
 
 
-char* naming_point_bnp(const char *prefix, int x, int y);
+char* naming_point_bmp(const char *prefix, int x, int y);
 void cell_grid_to_bmp(struct cell_grid* cell);
-void word_liste_to_bmp(struct word_liste* word);
-//void pretreatment(SDL_Surface* surface, struct cell_grid** cell, struct word_liste** word);
+void word_list_to_bmp(struct word_list* word);
+//void pretreatment(SDL_Surface* surface, struct cell_grid** cell, struct word_list** word);
 void pretreatment(SDL_Surface* surface, double angle);
 
 
