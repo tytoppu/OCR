@@ -10,7 +10,7 @@
 #include <string.h>
 
 //Frees all the memory used by DetectionData.
- 
+ /*
 void free_detection_data(DetectionData *data)
 {
     if (data == NULL)
@@ -39,14 +39,14 @@ void free_detection_data(DetectionData *data)
 
 
 
-/*
+
 Runs all detection steps
 and fills the DetectionData structure.
 *
 Returns 1 on success, 0 on error.
-*/
 
-int run_detection(struct simple_surface* simple, DetectionData *data){
+
+void run_detection(struct simple_surface* simple, DetectionData *data){
     if (!simple || !data) err(EXIT_FAILURE, "run_detection : wrong input");
 
     memset(data, 0, sizeof(*data));
@@ -80,5 +80,5 @@ int run_detection(struct simple_surface* simple, DetectionData *data){
     free_detection_data(data);
 }
 
-
+*/
 

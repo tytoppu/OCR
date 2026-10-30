@@ -33,7 +33,7 @@ struct simple_surface* contrast(struct simple_surface* simple, int histogram[256
 // black_and_white
 
 Uint8 single_black_and_white(Uint8 gray);
-struct simple_surface* black_and_white(struct simple_surface* simple);
+struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* ancre);
 
 
 // rotate image

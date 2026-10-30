@@ -250,7 +250,7 @@ Uint8 single_black_and_white(Uint8 gray){
 }
 
 
-struct simple_surface* black_and_white(struct simple_surface* simple){
+struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* ancre){
     /*
      * binarise une image
      */
@@ -261,19 +261,21 @@ struct simple_surface* black_and_white(struct simple_surface* simple){
 
     //int seuil = seuillage(simple, histogram);
 
-    //black_and_white[2] = {0};
+    int black_and_white[2] = {0};
     int y = 0;
     int x = 0;
     while(y < h){
         x = 0;
         while(x < w){
-            //black_and_white[bin==255] ++;
+            black_and_white[simple->gray[y*w + x]==255] ++;
             bin->gray[y*w + x] = single_black_and_white(simple->gray[y*w + x]);
 
             x++;
         }
         y++;
     }
+    if(black_and_white[0] >= black_and_white[1]) *ancre = 0;
+    else *ancre = 1;
     return bin;
 }
 
@@ -353,7 +355,8 @@ struct simple_surface* normalizer(SDL_Surface *surface){
     struct simple_surface* contraster = contrast(median, histogram);
     destroy_simple_surface(median);
 
-    struct simple_surface* binary = black_and_white(contraster);
+    Uint8 ancre;
+    struct simple_surface* binary = black_and_white(contraster, &ancre);
     destroy_simple_surface(contraster);
 
     if(!contraster) err(EXIT_FAILURE, "normalizer FAILED");

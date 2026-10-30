@@ -24,7 +24,7 @@ char* naming_point_bnp(const char* prefix, int x, int y) {
     snprintf(new_char, len, "%s_%d_%d.bnp", prefix, x, y);
     return new_char;
 }
-
+/*
 void pretreatment(SDL_Surface* surface){
     struct simple_surface* normalized = normalizer(surface);
 
@@ -56,7 +56,7 @@ void pretreatment(SDL_Surface* surface){
     } 
 
 }
-
+*/
 
 
 /*

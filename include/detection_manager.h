@@ -6,7 +6,7 @@
 #include "detection_data.h"
 
 //Launch all detection steps
-int run_detection(struct simple_surface* simple, DetectionData *data);
+void run_detection(struct simple_surface* simple, DetectionData *data);
 
 /* Frees the memory allocated in DetectionData. */
 void free_detection_data(DetectionData *data);

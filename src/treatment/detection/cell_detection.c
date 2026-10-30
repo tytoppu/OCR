@@ -1,7 +1,7 @@
 #include "cell_detection.h"
+#include "bitmap.h"
 #include <err.h>
 #include <stdlib.h>
-
 
 
 
@@ -16,72 +16,190 @@
 * Returns 1 on success, 0 on error.
 */
 
-
-void build_cells(const GridCoordinates *grid, CellCoordinates ***cells)
-{
-    if (grid == NULL || cells == NULL ||
-        grid->rows <= 0 || grid->columns <= 0 ||
-        grid->cell_width <= 0 || grid->cell_height <= 0)
-    {
-        errx(EXIT_FAILURE, "build_cells : wrong input");
+void corelation(double* array, int size, double** output_correlation){
+    double* array_correlation = calloc(size, sizeof(double));
+    if (!array_correlation) errx(EXIT_FAILURE, "corelation : calloc failed");
+    for(int k = 0; k < size; k++){
+        double sum_R = 0.0;
+        for (int i = 0; i < size-k; i++){
+            sum_R += array[i] * array[i + k];
+        }
+        array_correlation[k] = sum_R / (size - k);  // normalisation
     }
+    *output_correlation = array_correlation;
+}
 
-    int rows = grid->rows;
-    int columns = grid->columns;
 
-    *cells = malloc(rows * sizeof(CellCoordinates *));
-    if (*cells == NULL)
-        errx(EXIT_FAILURE, "build_cells : malloc failed");
+/*
 
-    for (int row = 0; row < rows; row++)
-    {
-        (*cells)[row] = malloc(columns * sizeof(CellCoordinates));
-
-        if ((*cells)[row] == NULL)
-        {
-            for (int i = 0; i < row; i++)
-                free((*cells)[i]);
-
-            free(*cells);
-            *cells = NULL;
-            errx(EXIT_FAILURE, "build_cells : malloc failed on (*cells)[row]");
+int cell_width_detector(struct simple_surface* simple, Uint8 ancre){
+    double* width_histogramme = calloc(simple->w, sizeof(double));
+    if (!width_histogramme) errx(EXIT_FAILURE, "cell_width_detector : calloc failed");
+    for(int y = 0; y<simple->h; y++){
+        for(int x = 0; x<simple->w; x++){
+            if (simple->gray[y*simple->w + x] == ancre) width_histogramme[x] ++;
         }
     }
 
-    int left = grid->bounds.top_left.x;
-    int top = grid->bounds.top_left.y;
+    double mean = 0.0;
+    for(int i = 0; i < simple->w; i++) mean += width_histogramme[i];
+    mean = mean / simple->w;
+    for(int i = 0; i < simple->w; i++) width_histogramme[i] -= mean;
 
-    for (int row = 0; row < rows; row++)
-    {
-        for (int col = 0; col < columns; col++)
-        {
-            CellCoordinates *cell = &(*cells)[row][col];
+    double* corr = NULL;
+    corelation(width_histogramme, simple->w, &corr);
 
-            cell->row = row;
-            cell->column = col;
+    free(width_histogramme);
+    double corr0 = corr[0];
+    for (int i = 0; i < simple->w; i++) corr[i] /= corr0;
 
-            cell->bounds.top_left.x =
-                left + col * grid->cell_width;
-            cell->bounds.top_left.y =
-                top + row * grid->cell_height;
+    int k = 0;
+    int limite = simple->w / 2;
+    while(k < limite && corr[k] >= 0.1)             // 1er phase
+        k++;
 
-            cell->bounds.top_right.x =
-                cell->bounds.top_left.x + grid->cell_width;
-            cell->bounds.top_right.y =
-                cell->bounds.top_left.y;
+    int max_glob = k;
+    for(int i = k; i < limite; i++)                     // max_glob
+        if (corr[i] > corr[max_glob]) max_glob = i; 
 
-            cell->bounds.bottom_left.x =
-                cell->bounds.top_left.x;
-            cell->bounds.bottom_left.y =
-                cell->bounds.top_left.y + grid->cell_height;
 
-            cell->bounds.bottom_right.x =
-                cell->bounds.top_right.x;
-            cell->bounds.bottom_right.y =
-                cell->bounds.bottom_left.y;
+    for(int i = k+1; i < limite-1; i++){                         // max_glob
+        if (corr[i] >= corr[max_glob] * 0.7 && corr[i] >= corr[i+1] && corr[i] >= corr[i-1]) {
+            free(corr);
+            return i;
+        }
+    }
+                   
+    free(corr);
+    err(EXIT_FAILURE, "cell_width_detector : no fiable widh cell found");
+
+}
+
+
+int cell_height_detector(struct simple_surface* simple, Uint8 ancre){
+    double* height_histogramme = calloc(simple->h, sizeof(double));
+    if (!height_histogramme) errx(EXIT_FAILURE, "cell_height_detector : calloc failed");
+    for(int y = 0; y<simple->h; y++){
+        for(int x = 0; x<simple->w; x++){
+            if (simple->gray[y*simple->w + x] == ancre) height_histogramme[y] ++;
         }
     }
 
+    double mean = 0.0;
+    for(int i = 0; i < simple->h; i++) mean += height_histogramme[i];
+    mean = mean / simple->h;
+    for(int i = 0; i < simple->h; i++) height_histogramme[i] -= mean;
+
+    double* corr = NULL;
+    corelation(height_histogramme, simple->h, &corr);
+
+    free(height_histogramme);
+    double corr0 = corr[0];
+    for (int i = 0; i < simple->h; i++) corr[i] /= corr0;
+
+    int k = 0;
+    int limite = simple->h / 2;
+    while(k < limite && corr[k] >= 0.1)             // 1er phase
+        k++;
+
+    int max_glob = k;
+    for(int i = k; i < limite; i++)                     // max_glob
+        if (corr[i] > corr[max_glob]) max_glob = i; 
+
+
+    for(int i = k+1; i < limite-1; i++){                         // max_glob
+        if (corr[i] >= corr[max_glob] * 0.7 && corr[i] >= corr[i+1] && corr[i] >= corr[i-1]) {
+            free(corr);
+            return i;
+        }
+    }
+                   
+    free(corr);
+    err(EXIT_FAILURE, "cell_height_detector : no fiable widh cell found");
+
+}
+
+
+*/
+
+
+
+int cell_size_detector(struct simple_surface* simple, Uint8 ancre, char axe){
+    int imp;
+    if (axe == 'x') imp = simple->w;
+    else if (axe == 'y') imp = simple->h;
+    else
+        errx(EXIT_FAILURE, "cell_size_detector : wrong axe input");
+
+
+    double* width_histogramme = calloc(simple->w, sizeof(double));
+    if (!width_histogramme) errx(EXIT_FAILURE, "cell_width_detector : calloc failed");
+    for(int y = 0; y<simple->h; y++){
+        for(int x = 0; x<simple->w; x++){
+            if (simple->gray[y*simple->w + x] == ancre) {
+                if (axe == 'x') width_histogramme[x] ++;
+                else width_histogramme[y] ++;
+            }
+        }
+    }
+
+    double mean = 0.0;
+    for(int i = 0; i < imp; i++) mean += width_histogramme[i];
+    mean = mean / imp;
+    for(int i = 0; i < imp; i++) width_histogramme[i] -= mean;
+
+    double* corr = NULL;
+    corelation(width_histogramme, imp, &corr);
+
+    free(width_histogramme);
+    double corr0 = corr[0];
+    for (int i = 0; i < imp; i++) corr[i] /= corr0;
+
+    int k = 0;
+    int limite = imp / 2;
+    while(k < limite && corr[k] >= 0.1)             // 1er phase
+        k++;
+
+    int max_glob = k;
+    for(int i = k; i < limite; i++)                     // max_glob
+        if (corr[i] > corr[max_glob]) max_glob = i; 
+
+
+    for(int i = k+1; i < limite-1; i++){                         // max_glob
+        if (corr[i] >= corr[max_glob] * 0.7 && corr[i] >= corr[i+1] && corr[i] >= corr[i-1]) {
+            free(corr);
+            return i;
+        }
+    }
+                   
+    free(corr);
+    err(EXIT_FAILURE, "cell_width_detector : no fiable widh cell found");
+}
+
+
+
+struct simple_surface*** build_cells(struct simple_surface* simple, Uint8 ancre){
+
+    if (!simple)
+        errx(EXIT_FAILURE, "build_cells : wrong input : simple");
+
+    if (ancre != 0 && ancre != 255)
+        errx(EXIT_FAILURE, "build_cells : wrong input : ancre");
+
+    int w_cell = cell_size_detector(simple, ancre, 'x');
+    int h_cell = cell_size_detector(simple, ancre, 'y');
+    int widerness = simple->w / w_cell;
+    int highterness = simple->h / h_cell;
+
+    struct simple_surface*** new = malloc(highterness * sizeof(struct simple_surface**));
+
+    for(int y = 0; y<highterness; y++){
+        new[y] = malloc(widerness * sizeof(struct simple_surface*));
+        for(int x = 0; x<widerness; x++){
+            new[y][x] = make_chunck(simple, x*w_cell, y*h_cell, (x+1)*w_cell, (y+1)*h_cell);
+        }
+    }
+    return new;
 }
 
 
@@ -89,8 +207,7 @@ void build_cells(const GridCoordinates *grid, CellCoordinates ***cells)
 
 
 
-
-
+/*
 // Frees the memory used by the array.
 
 // cells: array to free.
@@ -106,3 +223,5 @@ void free_cells(CellCoordinates **cells, int rows)
 
     free(cells);
 }
+*/
+
