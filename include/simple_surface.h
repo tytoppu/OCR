@@ -17,12 +17,13 @@ struct cell_grid {
 
 struct word_liste{
     struct letre_list* letre;
+    struct simple_surface* word;
     struct word_liste* next;
-}
+};
 
 struct letre_list{
     struct simple_surface* letre;
     struct letre_list* next;
-}
+};
 
 #endif

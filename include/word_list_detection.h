@@ -17,8 +17,10 @@
 */
 
 
-void detect_words_bounds(struct simple_surface* list,struct simple_surface**  word,int *word_count,int colors);
-
+void detect_words_bounds(struct simple_surface* list,
+			struct word_liste*  word_l,
+			int *word_count,
+                        int colors);
 
 
 #endif /* WORD_LIST_DETECTION_H */
