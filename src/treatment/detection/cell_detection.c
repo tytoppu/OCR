@@ -39,7 +39,8 @@ int cell_size_detector(struct simple_surface* simple, Uint8 anchor, char axis){
 
 
     double* width_histogram = calloc(imp, sizeof(double));
-    if (!width_histogram) errx(EXIT_FAILURE, "cell_width_detector : calloc failed");
+    if (!width_histogram)
+        errx(EXIT_FAILURE, "cell_width_detector : calloc failed");
     for(int y = 0; y<simple->h; y++){
         for(int x = 0; x<simple->w; x++){
             if (simple->gray[y*simple->w + x] == anchor) {
@@ -72,7 +73,8 @@ int cell_size_detector(struct simple_surface* simple, Uint8 anchor, char axis){
 
 
     for(int i = k+1; i < limit-1; i++){                         // max_glob
-        if (corr[i] >= corr[max_glob] * 0.7 && corr[i] >= corr[i+1] && corr[i] >= corr[i-1]) {
+        if (corr[i] >= corr[max_glob] * 0.7 && corr[i] >= corr[i+1]
+                && corr[i] >= corr[i-1]) {
             free(corr);
             return i;
         }
@@ -84,7 +86,8 @@ int cell_size_detector(struct simple_surface* simple, Uint8 anchor, char axis){
 
 
 
-void build_cells(struct simple_surface* simple, struct cell_grid** cell, Uint8 anchor){
+void build_cells(struct simple_surface* simple, struct cell_grid** cell,
+        Uint8 anchor){
 
     if (!simple)
         errx(EXIT_FAILURE, "build_cells : wrong input : simple");
@@ -100,12 +103,14 @@ void build_cells(struct simple_surface* simple, struct cell_grid** cell, Uint8 a
     //int nb_rows = (int)round((double) simple->h / h_cell);
 
     struct cell_grid* grid = init_cell_grid(nb_columns, nb_rows);
-    struct simple_surface*** new = malloc(nb_rows * sizeof(struct simple_surface**));
+    struct simple_surface*** new =
+        malloc(nb_rows * sizeof(struct simple_surface**));
 
     for(int y = 0; y<nb_rows; y++){
         new[y] = malloc(nb_columns * sizeof(struct simple_surface*));
         for(int x = 0; x<nb_columns; x++){
-            new[y][x] = make_chunk(simple, x*w_cell, y*h_cell, (x+1)*w_cell, (y+1)*h_cell);
+            new[y][x] = make_chunk(simple, x*w_cell, y*h_cell,
+                    (x+1)*w_cell, (y+1)*h_cell);
         }
     }
     grid->simple = new;

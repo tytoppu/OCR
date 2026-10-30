@@ -203,7 +203,8 @@ void append_word_list(struct word_list** word_l, struct word_list* new){
 
 
 void append_letter_list(struct letter_list** letter_l, struct letter_list* new){
-    if(!letter_l) errx(EXIT_FAILURE, "append_letter_list : letter_l doesn't exist");
+    if(!letter_l) errx(EXIT_FAILURE,
+            "append_letter_list : letter_l doesn't exist");
     
     if(!(*letter_l)) {
         *letter_l = new;
@@ -219,10 +220,12 @@ void append_letter_list(struct letter_list** letter_l, struct letter_list* new){
         basic processing
 ======================================== */
 
-struct simple_surface* make_chunk(struct simple_surface* simple, int x1, int y1, int x2, int y2){
+struct simple_surface* make_chunk(struct simple_surface* simple,
+        int x1, int y1, int x2, int y2){
     /*
      * returns a struct simple_surface
-     * containing the pixels of the chunk from (x1,y1) included to (x2,y2) included
+     * containing the pixels of the chunk from (x1,y1) included
+     * to (x2,y2) included
      */
 
     if (x1 > x2) {
@@ -239,19 +242,22 @@ struct simple_surface* make_chunk(struct simple_surface* simple, int x1, int y1,
     if (x1 < 0 || x2 >= simple->w || y1 < 0 || y2 >= simple->h)
         errx(EXIT_FAILURE, "make_chunk : Input error, invalid x or y");
 
-    struct simple_surface* chunk = init_simple_surface(x2 - x1 + 1, y2 - y1 + 1);
+    struct simple_surface* chunk = init_simple_surface(x2 - x1 + 1,
+            y2 - y1 + 1);
     if (!chunk) 
         errx(EXIT_FAILURE, "init_simple_surface");
 
     for (int x = 0; x < chunk->w; x++){
         for (int y = 0; y < chunk->h; y++)
-            chunk->gray[y*chunk->w + x] = simple->gray[(y+y1)*simple->w + (x+x1)];
+            chunk->gray[y*chunk->w + x] =
+                simple->gray[(y+y1)*simple->w + (x+x1)];
     }
 
     return chunk;
 }
 
-struct simple_surface* rotate_picture(struct simple_surface* simple, double angle){
+struct simple_surface* rotate_picture(struct simple_surface* simple, 
+        double angle){
     /*
      * returns a struct simple_surface
      * which is the simple parameter but rotated. nothing was freed

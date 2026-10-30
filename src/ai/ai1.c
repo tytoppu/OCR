@@ -25,9 +25,12 @@ static int size_add(size_t a, size_t b, size_t *result)
     return 1;
 }
 
-struct link *create_link(struct network *network,size_t link_index,double weight,struct neuron *n1,struct neuron *n2,struct link_list *incoming_list,struct link_list *outgoing_list)
+struct link *create_link(struct network *network,size_t link_index,
+        double weight,struct neuron *n1,struct neuron *n2,
+        struct link_list *incoming_list,struct link_list *outgoing_list)
 {
-    if (!network || link_index >= network->nb_links ||!n1 || !n2 || !incoming_list || !outgoing_list) return NULL;
+    if (!network || link_index >= network->nb_links ||!n1 || !n2 ||
+        !incoming_list || !outgoing_list) return NULL;
 
     struct link *link = &network->links[link_index];
 
@@ -46,7 +49,8 @@ struct link *create_link(struct network *network,size_t link_index,double weight
     return link;
 }
 
-static void append_node(struct link_list **head, struct link_list **tail, struct link_list *new_node)
+static void append_node(struct link_list **head, struct link_list **tail,
+        struct link_list *new_node)
 {
     new_node->next = NULL;
 
@@ -102,15 +106,20 @@ void connect_links(struct network *network, size_t source_layer_index)
             const size_t incoming_list_index = lists_offset + 2 * position;
             const size_t outgoing_list_index = incoming_list_index + 1;
 
-            struct link_list *incoming_list = &network->link_lists[incoming_list_index];
-            struct link_list *outgoing_list = &network->link_lists[outgoing_list_index];
+            struct link_list *incoming_list =
+                &network->link_lists[incoming_list_index];
+            struct link_list *outgoing_list =
+                &network->link_lists[outgoing_list_index];
 
-            create_link(network, link_index,g_random(nb_source), source_neuron, destination_neuron,incoming_list, outgoing_list);
+            create_link(network, link_index,g_random(nb_source), source_neuron,
+                destination_neuron,incoming_list, outgoing_list);
 
 
-            append_node(&destination_neuron->all_inputs, &destination_neuron->last_input, incoming_list);
+            append_node(&destination_neuron->all_inputs,
+                &destination_neuron->last_input, incoming_list);
 
-            append_node(&source_neuron->all_outputs, &source_neuron->last_output, outgoing_list);
+            append_node(&source_neuron->all_outputs,
+                &source_neuron->last_output, outgoing_list);
 
             destination_neuron->nb_inputs++;
             source_neuron->nb_outputs++;
@@ -184,7 +193,8 @@ struct network *create_network(size_t nb_layers, const size_t *layer_sizes)
     if (!network->links)
         goto error;
 
-    network->link_lists = malloc(total_link_lists * sizeof(*network->link_lists));
+    network->link_lists = malloc(total_link_lists
+            * sizeof(*network->link_lists));
     if (!network->link_lists)
         goto error;
 
@@ -230,7 +240,8 @@ error:
 }
 
 
-void destroy_network(struct network *network) // destroys and frees the neural network
+void destroy_network(struct network *network)
+// destroys and frees the neural network
 {
     if (!network)
         return;

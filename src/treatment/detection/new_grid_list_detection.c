@@ -4,7 +4,8 @@
 #include <stdlib.h>
 
 
-void where_is_anchor(struct simple_surface* simple, int* col, int* row, Uint8 anchor){
+void where_is_anchor(struct simple_surface* simple, int* col, int* row,
+        Uint8 anchor){
     /*
      * fills col and row to map where the anchor is on simple
      */
@@ -47,7 +48,8 @@ struct simple_surface* scrap(struct simple_surface* simple, int* col, int* row,
 }
 
 
-struct simple_surface* mini_scrap(struct simple_surface* simple, int x1, int y1, int x2, int y2, Uint8 anchor){
+struct simple_surface* mini_scrap(struct simple_surface* simple,
+        int x1, int y1, int x2, int y2, Uint8 anchor){
     struct simple_surface* temp = make_chunk(simple, x1, y1, x2, y2);
     int left;
     int right;
@@ -57,7 +59,8 @@ struct simple_surface* mini_scrap(struct simple_surface* simple, int x1, int y1,
     int *row = calloc(temp->h, sizeof(int));
     if (!col || !row) errx(EXIT_FAILURE, "mini_scrap : calloc");
     where_is_anchor(temp, col, row, anchor);
-    struct simple_surface* mini_scratch = scrap(temp, col, row, &left, &right, &top, &bottom);
+    struct simple_surface* mini_scratch = scrap(temp, col, row,
+            &left, &right, &top, &bottom);
     free(col);
     free(row);
     destroy_simple_surface(temp);
@@ -65,12 +68,14 @@ struct simple_surface* mini_scrap(struct simple_surface* simple, int x1, int y1,
 }
 
 
-void max_empty_range (int* array, int size, double threshold, int* len_out, int* x_out){
+void max_empty_range (int* array, int size, double threshold,
+        int* len_out, int* x_out){
     int len = 0;
     int max_len = 0;
     int x = 0;
     int max_x = 0;
-    int flag = 0;                   // 1 when in accumulation mode and 0 otherwise
+    // 1 when in accumulation mode and 0 otherwise
+    int flag = 0;
     for(int i = 0; i < size; i++){
         if (array[i] < threshold){
             if (flag == 0){
@@ -101,7 +106,9 @@ void max_empty_range (int* array, int size, double threshold, int* len_out, int*
 
 
 
-void detect_grid_and_list(struct simple_surface* simple, struct simple_surface** grid, struct simple_surface** list, Uint8 anchor)
+void detect_grid_and_list(struct simple_surface* simple,
+        struct simple_surface** grid, struct simple_surface** list,
+        Uint8 anchor)
 {
 
     int *col = calloc(simple->w, sizeof(int));
@@ -115,13 +122,16 @@ void detect_grid_and_list(struct simple_surface* simple, struct simple_surface**
     int top;
     int bottom;
 
-    struct simple_surface* scratch = scrap(simple, col, row, &left, &right, &top, &bottom);
+    struct simple_surface* scratch = scrap(simple, col, row,
+            &left, &right, &top, &bottom);
     int len_col;
     int x_col;
     int len_row;
     int y_row;
-    max_empty_range (col + left, right - left + 1, (double) scratch->h * 0.01, &len_col, &x_col);
-    max_empty_range (row + top, bottom - top + 1, (double) scratch->w * 0.01, &len_row, &y_row);
+    max_empty_range (col + left, right - left + 1,
+            (double) scratch->h * 0.01, &len_col, &x_col);
+    max_empty_range (row + top, bottom - top + 1,
+            (double) scratch->w * 0.01, &len_row, &y_row);
 
     double A = (double) len_col / (right - left + 1);
     double B = (double) len_row / (bottom - top + 1);
@@ -133,14 +143,17 @@ void detect_grid_and_list(struct simple_surface* simple, struct simple_surface**
     struct simple_surface* first = NULL;
     struct simple_surface* second = NULL;
 
-    if (A>=B){                               // cut along the height (so we work on x, on the width)
+    // cut along the height (so we work on x, on the width)
+    if (A>=B){
         first = make_chunk(scratch, 0, 0, x_col-1, scratch->h-1);
-        second = make_chunk(scratch, x_col+len_col, 0, scratch->w-1, scratch->h-1);
+        second = make_chunk(scratch, x_col+len_col, 0,
+                scratch->w-1, scratch->h-1);
     }
 
     else{
         first = make_chunk(scratch, 0, 0, scratch->w-1, y_row-1);
-        second = make_chunk(scratch, 0, y_row+len_row, scratch->w-1, scratch->h-1);
+        second = make_chunk(scratch, 0, y_row+len_row,
+                scratch->w-1, scratch->h-1);
     }
 
     free(col);
@@ -153,8 +166,10 @@ void detect_grid_and_list(struct simple_surface* simple, struct simple_surface**
         errx(EXIT_FAILURE, "detect_grid_and_list : calloc");
     where_is_anchor(first, first_col, first_row, anchor);
     where_is_anchor(second, second_col, second_row, anchor);
-    struct simple_surface* scratch_first = scrap(first, first_col, first_row, &left, &right, &top, &bottom);
-    struct simple_surface* scratch_second = scrap(second, second_col, second_row, &left, &right, &top, &bottom);
+    struct simple_surface* scratch_first = scrap(first, first_col,
+            first_row, &left, &right, &top, &bottom);
+    struct simple_surface* scratch_second = scrap(second, second_col,
+            second_row, &left, &right, &top, &bottom);
 
     long first_area = (long) scratch_first->w * scratch_first->h;
     long second_area = (long) scratch_second->w * scratch_second->h;

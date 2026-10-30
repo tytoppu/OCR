@@ -51,13 +51,16 @@ void test_normalizer_steps(SDL_Surface *surface){
     destroy_simple_surface(binary);
 }
 
-void test_make_chunk(struct simple_surface* init, int x1, int y1, int x2, int y2){
+void test_make_chunk(struct simple_surface* init,
+        int x1, int y1, int x2, int y2){
     struct simple_surface* simple = make_chunk(init, x1, y1, x2, y2);
     easy_save(simple, "result_test/chunk.bmp");
 }
 
 
-void test_rotate_picture(struct simple_surface* simple, double angle, Uint8 background){
+
+void test_rotate_picture(struct simple_surface* simple, double angle, 
+        Uint8 background){
     struct simple_surface* new = rotate_picture(simple, angle);
     easy_save(new, "result_test/getrotated.bmp");
 }

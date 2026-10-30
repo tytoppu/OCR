@@ -31,7 +31,8 @@ void back_propagation(struct network *network, const double *target)
             double s = 0.0;
 
             /* sum over outgoing links: weight * delta of the next neuron */
-            for (struct link_list *it = n->all_outputs; it != NULL; it = it->next)
+            for (struct link_list *it = n->all_outputs; it != NULL;
+                    it = it->next)
                 s += it->link->weight * it->link->output->delta;
 
             n->delta = s * sigmoid_derivative(n->z);
@@ -55,7 +56,8 @@ void update_weights(struct network *network, double lr){
         for (size_t j = 0; j < C->nb_neurons; j++){
             struct neuron *n = &C->neurons[j];
 
-            for (struct link_list *it = n->all_inputs; it != NULL; it = it->next)
+            for (struct link_list *it = n->all_inputs; it != NULL;
+                    it = it->next)
                 it->link->weight -= lr * n->delta * it->link->input->activation;
 
             n->bias -= lr * n->delta;

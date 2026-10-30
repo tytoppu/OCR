@@ -16,13 +16,15 @@
             helpers
 ======================================== */
 
-void contiguous (struct simple_surface* simple, int histogram[256], int* lower_pix, int* higher_pix){
+void contiguous (struct simple_surface* simple, int histogram[256],
+        int* lower_pix, int* higher_pix){
     /*
         computes the lower_pix and higher_pix values of the pixels
         at CONTIGUITY % from the ends (changeable ?)
     */
 
-    int threshold = simple->w * simple->h * CONTIGUITY;     // computes the contiguity
+    // computes the contiguity
+    int threshold = simple->w * simple->h * CONTIGUITY;
 
     int i = 0;
     int histo_sum = histogram[i];
@@ -121,12 +123,15 @@ Uint8 single_median_filter(struct simple_surface* simple, int x, int y){
     Uint8* gray = simple->gray;
 
     int size = 0;                   // number of values stored
-    Uint8 array[9];       // array sorted in ascending order with the grayscale values of the pixels
+    // array sorted in ascending order with the grayscale values of the pixels
+    Uint8 array[9];
     for (int r = 0; r < 9; r++) {
         array[r] = 255;
     }
 
-    insert_array(array, &size, gray[y * w + x]);    // inserts the gray value of the target pixel pointed by gray into the array (updating the size)
+    // inserts the gray value of the target pixel pointed by gray
+    // into the array (updating the size)
+    insert_array(array, &size, gray[y * w + x]);
 
     if (x > 0) {
         insert_array(array, &size, gray[y * w + x - 1]);
@@ -148,7 +153,8 @@ Uint8 single_median_filter(struct simple_surface* simple, int x, int y){
 }
 
 
-struct simple_surface* median_filter(struct simple_surface* simple, int histogram[256]){
+struct simple_surface* median_filter(struct simple_surface* simple,
+        int histogram[256]){
     /*
         takes a surface, creates a new empty surface called new,
         fills it pixel by pixel with the median filter,
@@ -196,7 +202,8 @@ Uint8 single_contrast(Uint8 gray, Uint8 min, Uint8 max){
     return answer;
 }
 
-struct simple_surface* contrast(struct simple_surface* simple, int histogram[256]){
+struct simple_surface* contrast(struct simple_surface* simple,
+        int histogram[256]){
     /*
      * contrasts all the pixels of a simple_surface,
      * based on a histogram, with CONTIGUITY % contiguity
@@ -223,7 +230,8 @@ struct simple_surface* contrast(struct simple_surface* simple, int histogram[256
     while(y < h){
         x = 0;
         while(x < w){
-            gray = single_contrast(simple->gray[y*w + x], lower_pix, higher_pix);
+            gray = single_contrast(simple->gray[y*w + x], lower_pix,
+                    higher_pix);
             //histogram[gray]++;
             contrasted->gray[y*w + x] = gray;
 
@@ -250,7 +258,8 @@ Uint8 single_black_and_white(Uint8 gray){
 }
 
 
-struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* anchor){
+struct simple_surface* black_and_white(struct simple_surface* simple,
+        Uint8* anchor){
     /*
      * binarizes an image
      */
@@ -336,7 +345,8 @@ int evaluate_rotation(struct simple_surface simple, double angle){
 ======================================== */
 
 
-struct simple_surface* normalizer(SDL_Surface *surface, double angle, Uint8* anchor){
+struct simple_surface* normalizer(SDL_Surface *surface, double angle,
+        Uint8* anchor){
     /*
      * all the processing steps of an image,
      * after being loaded, a surface is processed

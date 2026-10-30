@@ -57,7 +57,8 @@ int load_bmp_image_double(const char *path,
     FILE *f = fopen(path, "rb");
     if (!f)
     {
-        printf("error : load_bmp_image_double :: fopen error 'file can't be opened' -> returned 0\n");
+        printf("error : load_bmp_image_double :: fopen error "
+               "'file can't be opened' -> returned 0\n");
         return 0;
     }
 
@@ -73,7 +74,8 @@ int load_bmp_image_double(const char *path,
     if (!ok || signature != 0x4D42) /* "BM" */
     {
         fclose(f);
-        printf("error : load_bmp_image_double :: image read error -> returned 0\n");
+        printf("error : load_bmp_image_double :: "
+               "image read error -> returned 0\n");
         return 0;
     }
 
@@ -103,7 +105,8 @@ int load_bmp_image_double(const char *path,
         (bits_per_pixel != 24 && bits_per_pixel != 32) || compression != 0)
     {
         fclose(f);
-        printf("error : load_bmp_image_double :: parsing image error -> returned 0\n");
+        printf("error : load_bmp_image_double :: "
+               "parsing image error -> returned 0\n");
         return 0;
     }
 
@@ -118,7 +121,8 @@ int load_bmp_image_double(const char *path,
     if (!check_size(source_width, bytes_per_pixel, &raw_row))
     {
         fclose(f);
-        printf("error : load_bmp_image_double :: size_verification_after_call(0) error -> returned 0\n");
+        printf("error : load_bmp_image_double :: "
+               "size_verification_after_call(0) error -> returned 0\n");
         return 0;
     }
 
@@ -128,7 +132,8 @@ int load_bmp_image_double(const char *path,
     if (!check_size(row, source_height, &pixels_size))
     {
         fclose(f);
-        printf("error : load_bmp_image_double :: size_verification_after_call(1) error -> returned 0\n");
+        printf("error : load_bmp_image_double :: "
+               "size_verification_after_call(1) error -> returned 0\n");
         return 0;
     }
 
@@ -145,7 +150,8 @@ int load_bmp_image_double(const char *path,
     {
         free(pixels);
         fclose(f);
-        printf("error : load_bmp_image_double :: fread / fseek error -> returned 0\n");
+        printf("error : load_bmp_image_double :: "
+               "fread / fseek error -> returned 0\n");
         return 0;
     }
 

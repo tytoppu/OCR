@@ -77,7 +77,9 @@ double g_random(size_t n_in);
 
 struct network *create_network(size_t nb_layers, const size_t *layer_sizes);
 void connect_links(struct network *network, size_t source_layer_index);
-struct link *create_link(struct network *network, size_t link_index, double weight, struct neuron *n1, struct neuron *n2, struct link_list *incoming_list, struct link_list *outgoing_list);
+struct link *create_link(struct network *network, size_t link_index,
+        double weight, struct neuron *n1, struct neuron *n2,
+        struct link_list *incoming_list, struct link_list *outgoing_list);
 
 void destroy_network(struct network *network);
 
