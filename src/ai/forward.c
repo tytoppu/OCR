@@ -37,7 +37,8 @@ void forward_network(struct network *network)
     for (size_t i = 1; i < network->nb_layers; i++)
     {
         forward_layer(&network->layers[i]);
-        //printf("layer : %zu\t->\tactivation : %f\n", i, (&network->layers[i])->neurons->activation);
+        //printf("layer : %zu\t->\tactivation : %f\n", i,
+        //       (&network->layers[i])->neurons->activation);
     }
 }
 

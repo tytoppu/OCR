@@ -11,7 +11,8 @@ void correlation(double* array, int size, double** output_correlation);
 //int cell_height_detector(struct simple_surface* simple, Uint8 anchor);
 int cell_size_detector(struct simple_surface* simple, Uint8 anchor, char axis);
 
-void build_cells(struct simple_surface* simple, struct cell_grid** cell, Uint8 anchor);
+void build_cells(struct simple_surface* simple, struct cell_grid** cell,
+        Uint8 anchor);
 
 //void free_cells(CellCoordinates **cells, int rows);
 

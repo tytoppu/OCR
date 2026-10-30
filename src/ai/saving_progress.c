@@ -2,17 +2,21 @@
 
 void load_ai(struct network *network, char *filename)
 {
-    if (!filename || !network) errx(EXIT_FAILURE, "load_ai : there is no network or no file\n");
+    if (!filename || !network) errx(EXIT_FAILURE,
+            "load_ai : there is no network or no file\n");
 
     FILE *f = fopen(filename, "rb");
-    if (!f) errx(EXIT_FAILURE, "load_ai : can't open the file '%s'\n", filename);
+    if (!f) errx(EXIT_FAILURE, "load_ai : can't open the file '%s'\n",
+            filename);
 
 
     double *bias = malloc(network->nb_neurons * sizeof(double));
     double *weight = malloc(network->nb_links * sizeof(double));
 
-    if (fread(bias, sizeof(double), network->nb_neurons, f) != network->nb_neurons ||
-        fread(weight, sizeof(double), network->nb_links, f)  != network->nb_links)
+    if (fread(bias, sizeof(double), network->nb_neurons, f)
+            != network->nb_neurons ||
+        fread(weight, sizeof(double), network->nb_links, f)
+            != network->nb_links)
         errx(EXIT_FAILURE, "load_ai : can't read the file %s", filename);
 
     for (size_t i = 0; i < network->nb_neurons; i++)
@@ -29,10 +33,13 @@ void load_ai(struct network *network, char *filename)
 
 void save_ai(struct network *network, char *filename)
 {
-    if (!filename || !network) errx(EXIT_FAILURE, "save_ai : there is no network(%p) or no file(%p)\n", network, filename);
+    if (!filename || !network) errx(EXIT_FAILURE,
+            "save_ai : there is no network(%p) or no file(%p)\n",
+            network, filename);
 
     FILE *f = fopen(filename, "wb");
-    if (!f) errx(EXIT_FAILURE, "save_ai : can't open the file to save the progress\n");
+    if (!f) errx(EXIT_FAILURE,
+            "save_ai : can't open the file to save the progress\n");
 
 
     double *bias = malloc(network->nb_neurons * sizeof(double));

@@ -8,7 +8,8 @@
 
 // helpers
 
-void contiguous (struct simple_surface* simple, int histogram[256], int* lower_pix, int* higher_pix);
+void contiguous (struct simple_surface* simple, int histogram[256],
+        int* lower_pix, int* higher_pix);
 void insert_array(Uint8 array[9], int* size, Uint8 elem);
 
 
@@ -21,19 +22,22 @@ struct simple_surface* start_grayscale(SDL_Surface* surface);
 // median filter
 
 Uint8 single_median_filter(struct simple_surface* simple, int x, int y);
-struct simple_surface* median_filter(struct simple_surface* simple, int histogram[256]);
+struct simple_surface* median_filter(struct simple_surface* simple,
+        int histogram[256]);
 
 
 // contrast
 
 Uint8 single_contrast(Uint8 gray, Uint8 min, Uint8 max);
-struct simple_surface* contrast(struct simple_surface* simple, int histogram[256]);
+struct simple_surface* contrast(struct simple_surface* simple,
+        int histogram[256]);
 
 
 // black_and_white
 
 Uint8 single_black_and_white(Uint8 gray);
-struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* anchor);
+struct simple_surface* black_and_white(struct simple_surface* simple,
+        Uint8* anchor);
 
 
 // rotate image
@@ -43,6 +47,7 @@ int evaluate_rotation(struct simple_surface* simple, double angle);
 
 // MAIN : normalizer
 
-struct simple_surface* normalizer(SDL_Surface *surface, double angle, Uint8* anchor);
+struct simple_surface* normalizer(SDL_Surface *surface, double angle,
+        Uint8* anchor);
 
 #endif  /* FILTER_H */

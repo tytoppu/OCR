@@ -10,7 +10,8 @@
  * cuts it
     * the grid -> the letters of the grid
     * the words -> the letters of the words
- * returns the matching simple_surface -> conversion to surface -> conversion to image 
+ * returns the matching simple_surface -> conversion to surface
+ *   -> conversion to image
 */
 
 char* naming_point_bmp(const char* prefix, int x, int y) {
@@ -29,7 +30,8 @@ void cell_grid_to_bmp(struct cell_grid* cell){
     char* name = NULL;
     for (int y = 0; y<cell->h; y++){
         for (int x = 0; x<cell->w; x++){
-            name = naming_point_bmp("result_test/test_image_cutting/grid/cell", x, y);
+            name = naming_point_bmp("result_test/test_image_cutting/grid/cell",
+                    x, y);
             save_simple(cell->simple[x][y], name);
             free(name);
         }
@@ -45,14 +47,16 @@ void word_list_to_bmp(struct word_list* word){
     int y = 0;
     int x = 0;
     while(current_word){
-        name = naming_point_bmp("result_test/test_image_cutting/list/words/word", 0, y);
+        name = naming_point_bmp(
+                "result_test/test_image_cutting/list/words/word", 0, y);
         save_simple(current_word->word, name);
         free(name);
 
         current_letter = current_word->letters;
         x = 1;
         while(current_letter){
-            name = naming_point_bmp("result_test/test_image_cutting/list/letters/letter", x, y);
+            name = naming_point_bmp(
+                    "result_test/test_image_cutting/list/letters/letter", x, y);
             save_simple(current_letter->letter, name);
             free(name);
 

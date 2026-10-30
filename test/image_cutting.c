@@ -27,7 +27,8 @@ void easy_save(struct simple_surface* simple, const char* path){
 
 
 
-void  test_cell_size_detector(struct simple_surface* simple, Uint8 anchor, int x1, int y1, int x2, int y2, char axis){
+void  test_cell_size_detector(struct simple_surface* simple, Uint8 anchor,
+        int x1, int y1, int x2, int y2, char axis){
     struct simple_surface* new_simple = make_chunk(simple, x1, y1, x2, y2);
     int wide = cell_size_detector(new_simple, anchor, axis);
     struct simple_surface* result = NULL;
@@ -50,7 +51,8 @@ void test_cutting(struct simple_surface* simple, Uint8 anchor){
     char* name = NULL;
     for (int y = 0; y<easy->h; y++){
         for (int x = 0; x<easy->w; x++){
-            name = naming_point_bmp("result_test/test_image_cutting/letter", x, y);
+            name = naming_point_bmp("result_test/test_image_cutting/letter",
+                    x, y);
             save_simple(easy->simple[x][y], name);
             free(name);
         }
