@@ -4,319 +4,149 @@
 #include <stdlib.h>
 
 
-
-
-//checks if one pixel is colors //<128 otherwise white
-
-int is_colors(struct simple_surface* simple,int x, int y,int colors)    {                                                                               /*                                                                              return 1 if its colors, 0 if its not                            */                                                                                                                                              if (!simple || x < 0 || y < 0 || x >= simple->w || y >= simple->h)                                                                                      errx(EXIT_FAILURE, "is_colors : wrong input");                                                                                          return simple->gray[(size_t)y * (size_t)simple->w + (size_t)x] == colors;
-}                                                                        
-/*
-static void set_rectangle(Rectangle *r,
-                          int x_min,
-                          int y_min,
-                          int x_max,
-                          int y_max)
-{
-    r->top_left.x = x_min;
-    r->top_left.y = y_min;
-
-    r->top_right.x = x_max;
-    r->top_right.y = y_min;
-
-    r->bottom_right.x = x_max;
-    r->bottom_right.y = y_max;
-
-    r->bottom_left.x = x_min;
-    r->bottom_left.y = y_max;
-}
-*/
-
-void dectet_grid_and_list(struct simple_surface* simple, struct simple_surface* grid, struct simple_surface* list, int colors)
-{
-	if (!simple || !grid || !list)
-		errx(EXIT_FAILURE, "dectet_grid_and_list : wrong input");
-
-
-	int *width = calloc(simple->w, sizeof(int));
-	int *height = calloc(simple->h, sizeof(int));
-
-	if (width == NULL || height == NULL)
-    		errx(EXIT_FAILURE, "dectet_grid_and_listAllocation memory failed");
-
-	int w_count=0;
-	int h_count=0;
-	for (int w=0; w<simple->w; w++)
-	{
-		w_count=0;
-		for (int h=0; h<simple->h; h++)
-		{
-			if (is_colors(simple, w, h, colors))
-				w_count++;
-		}
-		width[w]=w_count;
-	}
-	for (int h=0; h<simple->h; h++)
-        {
-                h_count=0;
-                for (int w=0; w<simple->w; w++)
-                {
-                        if (is_colors(simple, w, h, colors))
-                                h_count++;
-                }
-                height[h]=h_count;
+void where_is_anchor(struct simple_surface* simple, int* col, int* row, Uint8 ancre){
+    for(int y = 0; y<simple->h; y++){
+        for(int x = 0; x<simple->w; x++){
+            if (simple->gray[y*simple->w + x] == ancre) {
+                col[x]++;
+                row[y]++;
+            }
         }
-	int t_l_x1=0;
-	int t_l_y1=0;
-
-	int t_r_x1=0;
-	int t_r_y1=0;
-
-	int b_l_x1=0;
-	int b_l_y1=0;
-
-	int b_r_x1=0;
-	int b_r_y1=0;
-
-	//2 
-	//top
-	int t_l_x2=0;
-        int t_l_y2=0;
-
-        int t_r_x2=0;
-        int t_r_y2=0;
-
-	//bottom
-        int b_l_x2=0;
-        int b_l_y2=0;
-
-        int b_r_x2=0;
-        int b_r_y2=0;
-
-	
-
-	int left = 0;
-	int right = simple->w - 1;
-	int top = 0;
-	int bottom = simple->h - 1;
-
-	/* Find the first non-empty column */
-	while (left < simple->w && width[left] == 0)
-    		left++;
-
-	/* Find the last non-empty column */
-	while (right >= 0 && width[right] == 0)
-   		right--;
-
-	/* Find the first non-empty row */
-	while (top < simple->h && height[top] == 0)
-    		top++;
-
-	/* Find the last non-empty row */
-	while (bottom >= 0 && height[bottom] == 0)
-    		bottom--;
-	
-
-	int w_start = -1;
-	int w_l_max = 0;
-	int w_start_max = -1;
-	//start_max+longueur_max-1 -> last empty
-	for (int w = left; w <= right; w++)
-	{
-    		if (width[w] == 0)
-    		{
-        		if (w_start == -1)
-            		w_start = w;
-    		}
-    		else
-    		{
-        		if (w_start != -1)
-        		{
-            			int l = w - w_start;
-
-            			if (l > w_l_max)
-            			{
-                			w_l_max = l;
-                			w_start_max = w_start;
-            			}
-
-            			w_start = -1;
-        		}
-    		}
-	}
-
-	if (w_start != -1)
-	{
-    		int l = right - w_start+1;
-
-    		if (l > w_l_max)
-    		{
-        		w_l_max = l;
-        		w_start_max = w_start;
-    		}
-	}
+    }
+	//for(int i = 0; i<simple->w; i++) printf("%i\n",col[i]);
+}
 
 
-	int h_start = -1;
-	int h_l_max = 0;
-	int h_start_max = -1;
+struct simple_surface* scrap(struct simple_surface* simple, int* col, int* row, 
+        int* l, int* r, int* t, int* b){
+    int left = 0;
+    int right = simple->w - 1;
+    int top = 0;
+    int bottom = simple->h - 1;
+    while (left < simple->w && col[left] < simple->h*0.01) left++;
+    while (right > 0 && col[right] < simple->h*0.01) right--;
+    while (top < simple->h && row[top] < simple->w*0.01) top++;
+    while (bottom > 0 && row[bottom] < simple->w*0.01) bottom--;
 
-	for (int h = top; h <= bottom; h++)
-	{
-        	if (height[h] == 0)
-        	{
-                	if (h_start == -1)
-                        	h_start = h;
-        	}
-        	else
-        	{
-                	if (h_start != -1)
-                	{
-                        	int l = h - h_start;
+    if (left > right || top > bottom)
+        errx(EXIT_FAILURE, "scrap : aucune encre dans cette region");
 
-                        	if (l > h_l_max)
-                        	{
-                                	h_l_max = l;
-                                	h_start_max = h_start;
-                        	}
+    *l = left;
+    *r = right;
+    *t = top;
+    *b = bottom;
 
-                        	h_start = -1;
-                	}
-        	}
-	}
+    return make_chunck(simple, left, top, right, bottom);
+}
 
-	if (h_start != -1)
-	{
-        	int l = bottom - h_start + 1;
+void max_empty_plage (int* array, int size, double seuil, int* len_out, int* x_out){
+    int len = 0;
+    int max_len = 0;
+    int x = 0;
+    int max_x = 0;
+    int flag = 0;                   // 1 quand est en mode cumul et 0 sinon
+    for(int i = 0; i < size; i++){
+        if (array[i] < seuil){
+            if (flag == 0){
+                x = i;
+                len = 0;
+                flag = 1;
+            }
+            len++;
+        }
+        else {
+            if (flag == 1){
+                if (len > max_len){
+                    max_len = len;
+                    max_x = x;
+                }
+                flag = 0;
+            }
 
- 	      	if (l > h_l_max)
-        	{
-                	h_l_max = l;
-                	h_start_max = h_start;
-        	}
-	}
+        }
+    }
+    if (flag == 1 && len > max_len){ 
+        max_len = len; 
+        max_x = x; 
+    }
+    *len_out = max_len;
+    *x_out = max_x;
+}
 
 
 
-	if (w_l_max > 0&& (h_l_max == 0
-        	|| (double)w_l_max / (right - left + 1)
-           	>= (double)h_l_max / (bottom - top + 1)))
-	{
+void detect_grid_and_list(struct simple_surface* simple, struct simple_surface** grid, struct simple_surface** list, Uint8 ancre)
+{
 
-        	t_l_x1 = left;
-        	t_l_y1 = top;
+    int *col = calloc(simple->w, sizeof(int));
+    int *row = calloc(simple->h, sizeof(int));
+    if (!col || !row) errx(EXIT_FAILURE, "detect_grid_and_list : calloc");
+    where_is_anchor(simple, col, row, ancre);
+	//for(int i = 0; i<simple->w; i++) printf("%i\n",col[i]);
 
-        	t_r_x1 = w_start_max - 1;
-        	t_r_y1 = top;
+    int left;
+    int right;
+    int top;
+    int bottom;
 
-        	b_l_x1 = left;
-        	b_l_y1 = bottom;
+    struct simple_surface* scratch = scrap(simple, col, row, &left, &right, &top, &bottom);
+    int len_col;
+    int x_col;
+    int len_row;
+    int y_row;
+    max_empty_plage (col + left, right - left + 1, (double) scratch->h * 0.01, &len_col, &x_col);
+    max_empty_plage (row + top, bottom - top + 1, (double) scratch->w * 0.01, &len_row, &y_row);
 
-        	b_r_x1 = w_start_max - 1;
-        	b_r_y1 = bottom;
+    double A = (double) len_col / (right - left + 1);
+    double B = (double) len_row / (bottom - top + 1);
 
-
-        	// Region 2
-        	t_l_x2 = w_start_max + w_l_max;
-        	t_l_y2 = top;
-
-        	t_r_x2 = right;
-        	t_r_y2 = top;
-
-        	b_l_x2 = w_start_max + w_l_max;
-        	b_l_y2 = bottom;
-
-        	b_r_x2 = right;
-        	b_r_y2 = bottom;
-	}
-	else if (h_l_max > 0)
-	{
-
-        	// Region 1
-        	t_l_x1 = left;
-        	t_l_y1 = top;
-
-        	t_r_x1 = right;
-        	t_r_y1 = top;
-
-        	b_l_x1 = left;
-        	b_l_y1 = h_start_max - 1;
-
-        	b_r_x1 = right;
-        	b_r_y1 = h_start_max - 1;
+    if (A < 0.03 && B < 0.03)
+        errx(EXIT_FAILURE, "detect_grid_and_list : pas de gouttiere nette");
 
 
-        	// Region 2
-        	t_l_x2 = left;
-        	t_l_y2 = h_start_max + h_l_max;
+    struct simple_surface* first = NULL;
+    struct simple_surface* second = NULL;
 
-        	t_r_x2 = right;
-        	t_r_y2 = h_start_max + h_l_max;
+    if (A>=B){                               // coupe sur la hauteur (donc on travail sur les x, sur la largeur)
+        first = make_chunck(scratch, 0, 0, x_col-1, scratch->h-1);
+        second = make_chunck(scratch, x_col+len_col, 0, scratch->w-1, scratch->h-1);
+    }
 
-        	b_l_x2 = left;
-        	b_l_y2 = bottom;
+    else{
+        first = make_chunck(scratch, 0, 0, scratch->w-1, y_row-1);
+        second = make_chunck(scratch, 0, y_row+len_row, scratch->w-1, scratch->h-1);
+    }
 
-        	b_r_x2 = right;
-        	b_r_y2 = bottom;
-	}
-	else
-	{
-        	errx(EXIT_FAILURE, "dectet_grid_and_list : No suitable separating gap found");
-	}
+    free(col);
+    free(row);
+    int *first_col = calloc(first->w, sizeof(int));
+    int *first_row = calloc(first->h, sizeof(int));
+    int *second_col = calloc(second->w, sizeof(int));
+    int *second_row = calloc(second->h, sizeof(int));
+    if (!first_col || !first_row || !second_col || !second_row)
+        errx(EXIT_FAILURE, "detect_grid_and_list : calloc");
+    where_is_anchor(first, first_col, first_row, ancre);
+    where_is_anchor(second, second_col, second_row, ancre);
+    struct simple_surface* scratch_first = scrap(first, first_col, first_row, &left, &right, &top, &bottom);
+    struct simple_surface* scratch_second = scrap(second, second_col, second_row, &left, &right, &top, &bottom);
 
-	/* Calculate the area of both regions */
-	int area1 = (t_r_x1 - t_l_x1 + 1)
-          	* (b_l_y1 - t_l_y1 + 1);
+    long first_area = (long) scratch_first->w * scratch_first->h;
+    long second_area = (long) scratch_second->w * scratch_second->h;
 
-	int area2 = (t_r_x2 - t_l_x2 + 1)
-          	* (b_l_y2 - t_l_y2 + 1);
-
-	if (area2 > area1)
-	{
-        	int temp;
-
-        	temp = t_l_x1;
-        	t_l_x1 = t_l_x2;
-        	t_l_x2 = temp;
-
-        	temp = t_l_y1;
-        	t_l_y1 = t_l_y2;
-        	t_l_y2 = temp;
-
-        	temp = t_r_x1;
-        	t_r_x1 = t_r_x2;
-        	t_r_x2 = temp;
-
-        	temp = t_r_y1;
-       		t_r_y1 = t_r_y2;
-        	t_r_y2 = temp;
-
-        	temp = b_l_x1;
-        	b_l_x1 = b_l_x2;
-        	b_l_x2 = temp;
-
-       		temp = b_l_y1;
-        	b_l_y1 = b_l_y2;
-        	b_l_y2 = temp;
-
-        	temp = b_r_x1;
-        	b_r_x1 = b_r_x2;
-        	b_r_x2 = temp;
-
-        	temp = b_r_y1;
-        	b_r_y1 = b_r_y2;
-        	b_r_y2 = temp;
-	}
-
-	grid->w=t_r_x1 - t_l_x1 + 1;
-	grid->h=b_l_y1 - t_l_y1 + 1;
-
-
-	list->w=t_r_x2 - t_l_x2 + 1;
-	list->h=b_l_y2 - t_l_y2 + 1;
-
-	make_chunck(grid,t_l_x1,t_l_y1,b_r_x1,b_r_y1);
-	make_chunck(list,t_l_x2,t_l_y2,b_r_x2,b_r_y2);
-	free(width);
-	free(height);
+    if (first_area>=second_area){
+        *grid = scratch_first;
+        *list = scratch_second;
+    }
+    else {
+        *grid = scratch_second;
+        *list = scratch_first;
+    }
+    free(first_col);
+    free(first_row);
+    free(second_col);
+    free(second_row);
+    destroy_simple_surface(scratch);
+    destroy_simple_surface(first);
+    destroy_simple_surface(second);
 }
 

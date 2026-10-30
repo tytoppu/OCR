@@ -10,8 +10,8 @@ struct simple_surface {      // suppose que l'image a été grayscalée
 };
 
 struct cell_grid {
-    int rows;
-    int cols;
+    int w;
+    int h;
     struct simple_surface*** simple;   // cells[row][col]
 };
 

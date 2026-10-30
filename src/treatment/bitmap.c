@@ -141,16 +141,16 @@ struct simple_surface* make_chunck(struct simple_surface* simple, int x1, int y1
         y2 = temp;
     }
 
-    if (x1 < 0 || x2 > simple->w || y1 < 0 || y2 > simple->h || x2-x1<2 || y2-y1<2)
+    if (x1 < 0 || x2 >= simple->w || y1 < 0 || y2 >= simple->h)
         errx(EXIT_FAILURE, "make_chunck : Input error, invalid x or y");
 
-    struct simple_surface* chunck = init_simple_surface(x2 - x1 - 1, y2 - y1 - 1);
+    struct simple_surface* chunck = init_simple_surface(x2 - x1 + 1, y2 - y1 + 1);
     if (!chunck) 
         errx(EXIT_FAILURE, "init_simple_surface");
 
     for (int x = 0; x < chunck->w; x++){
         for (int y = 0; y < chunck->h; y++)
-            chunck->gray[y*chunck->w + x] = simple->gray[(y+y1+1)*simple->w + (x+x1+1)];
+            chunck->gray[y*chunck->w + x] = simple->gray[(y+y1)*simple->w + (x+x1)];
     }
 
     return chunck;

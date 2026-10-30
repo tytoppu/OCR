@@ -15,13 +15,13 @@
 
 char* naming_point_bnp(const char* prefix, int x, int y) {
     
-    int len = snprintf(NULL, 0, "%s_%d_%d", prefix, x, y);
+    int len = snprintf(NULL, 0, "%s_%d_%d.bmp", prefix, x, y);
     if (len < 0) return NULL;
     len++;
     char* new_char = malloc(len);  // +1 pour '\0'
     if (!new_char) return NULL;
 
-    snprintf(new_char, len, "%s_%d_%d.bnp", prefix, x, y);
+    snprintf(new_char, len, "%s_%d_%d.bmp", prefix, x, y);
     return new_char;
 }
 /*

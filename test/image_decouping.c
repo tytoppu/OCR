@@ -3,6 +3,8 @@
 #include "cell_detection.h"
 #include "image.h"
 #include "filter.h"
+#include "new_grid_list_detection.h"
+
 
 #include  <err.h>
 
@@ -42,17 +44,17 @@ void  test_cell_size_detector(struct simple_surface* simple, Uint8 ancre, int x1
 
 void test_decouping(struct simple_surface* simple, Uint8 ancre){
 
-
     struct simple_surface* grid = NULL;
     struct simple_surface* list = NULL;
-    dectet_grid_and_list(simple, grid, list, ancre);
+
+    detect_grid_and_list(simple, &grid, &list, ancre);
     struct cell_grid* easy = build_cells(grid, ancre);
 
     char* name = NULL;
-    for (int y = 0; easy->h; y++){
-        for (int x = 0; easy->w; x++){
-            name = naming_point_bnp("result_test/letter", x, y);
-            save_simple(easy[x][y], name);
+    for (int y = 0; y<easy->h; y++){
+        for (int x = 0; x<easy->w; x++){
+            name = naming_point_bnp("result_test/test_image_decouping/letter", x, y);
+            save_simple(easy->simple[x][y], name);
             free(name);
         }
     }
@@ -76,11 +78,10 @@ int main(int argc, char *argv[])
 
     //test_image_decouping_CellCoordinates(surface);
 
-    printf("%i, %i\n\n\n\n", simple->w, simple->h);
     //test_cell_width_detector(simple, 0, 190, 25, 770, 605);
     //test_cell_height_detector(simple, 0, 190, 25, 770, 605);
     //test_cell_size_detector(simple, 0, 190, 25, 770, 605, 'y');
-    test_decouping(simple, Uint8 ancre)
+    test_decouping(simple, ancre);
     
     destroy_simple_surface(simple);
 

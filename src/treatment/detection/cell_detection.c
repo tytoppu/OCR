@@ -132,7 +132,7 @@ int cell_size_detector(struct simple_surface* simple, Uint8 ancre, char axe){
         errx(EXIT_FAILURE, "cell_size_detector : wrong axe input");
 
 
-    double* width_histogramme = calloc(simple->w, sizeof(double));
+    double* width_histogramme = calloc(imp, sizeof(double));
     if (!width_histogramme) errx(EXIT_FAILURE, "cell_width_detector : calloc failed");
     for(int y = 0; y<simple->h; y++){
         for(int x = 0; x<simple->w; x++){

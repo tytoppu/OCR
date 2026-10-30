@@ -259,7 +259,7 @@ struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* anc
     int h = simple->h;
     struct simple_surface* bin = init_simple_surface(w, h);
 
-    //int seuil = seuillage(simple, histogram);
+    Uint8 black;
 
     int black_and_white[2] = {0};
     int y = 0;
@@ -267,15 +267,15 @@ struct simple_surface* black_and_white(struct simple_surface* simple, Uint8* anc
     while(y < h){
         x = 0;
         while(x < w){
-            black_and_white[simple->gray[y*w + x]==255] ++;
-            bin->gray[y*w + x] = single_black_and_white(simple->gray[y*w + x]);
-
+            black = single_black_and_white(simple->gray[y*w + x]);
+            bin->gray[y*w + x] = black;
+            black_and_white[black==255] ++;
             x++;
         }
         y++;
     }
-    if(black_and_white[0] >= black_and_white[1]) *ancre = 0;
-    else *ancre = 1;
+    if(black_and_white[0] >= black_and_white[1]) *ancre = 255;
+    else *ancre = 0;
     return bin;
 }
 
@@ -336,7 +336,7 @@ int evaluate_rotation(struct simple_surface simple, double angle){
 ======================================== */
 
 
-struct simple_surface* normalizer(SDL_Surface *surface){
+struct simple_surface* normalizer(SDL_Surface *surface,Uint8* ancre){
     /*
      * tout les process de traitement d'une image, 
      * apres avoir etait charge, une surface est traiter
@@ -355,8 +355,8 @@ struct simple_surface* normalizer(SDL_Surface *surface){
     struct simple_surface* contraster = contrast(median, histogram);
     destroy_simple_surface(median);
 
-    Uint8 ancre;
-    struct simple_surface* binary = black_and_white(contraster, &ancre);
+    ;
+    struct simple_surface* binary = black_and_white(contraster, ancre);
     destroy_simple_surface(contraster);
 
     if(!contraster) err(EXIT_FAILURE, "normalizer FAILED");
