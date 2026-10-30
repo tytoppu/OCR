@@ -32,7 +32,7 @@ void append_letter_list(struct letter_list** letter_l, struct letter_list* new);
 // basic processing
 
 struct simple_surface* make_chunk(struct simple_surface* simple, int x1, int y1, int x2, int y2);
-struct simple_surface* rotate_picture(struct simple_surface* simple, double angle, Uint8 background);
+struct simple_surface* rotate_picture(struct simple_surface* simple, double angle);
 
 
 // pixel

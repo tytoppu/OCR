@@ -58,7 +58,7 @@ void test_make_chunk(struct simple_surface* init, int x1, int y1, int x2, int y2
 
 
 void test_rotate_picture(struct simple_surface* simple, double angle, Uint8 background){
-    struct simple_surface* new = rotate_picture(simple, angle, background);
+    struct simple_surface* new = rotate_picture(simple, angle);
     easy_save(new, "result_test/getrotated.bmp");
 }
 
