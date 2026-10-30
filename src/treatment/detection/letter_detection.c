@@ -54,8 +54,8 @@ void detect_grid_letters(const DetectionData *data,
 
 //Identify the letters of a word by grouping the black pixels
 
-void detect_word_letters(struct simple_surface* simple,
-                        DetectedWord *words,
+void detect_word_letters(struct word_liste* word_l, 
+			struct letre_liste* letre_l,
                         int word_count,
 			int colors)
 {
@@ -67,7 +67,7 @@ void detect_word_letters(struct simple_surface* simple,
 
     for (w = 0; w < word_count; w++)
     {
-        int x_min = words[w].bounds.top_left.x;
+        int x_min = 0;
         int y_min = words[w].bounds.top_left.y;
         int x_max = words[w].bounds.top_right.x;
         int y_max = words[w].bounds.bottom_left.y;

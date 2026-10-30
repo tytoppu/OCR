@@ -33,7 +33,7 @@ int is_ink(struct simple_surface* list,
 
 
 void detect_words_bounds(struct simple_surface* list,
-struct simple_surface**  word,int *word_count,
+struct word_liste*  word_l,int *word_count,
 			int colors)
 {
     int x_min, x_max, y_min, y_max;
@@ -49,7 +49,7 @@ struct simple_surface**  word,int *word_count,
 
     *word_count = 0;
 
-    if (!list || !word)
+    if (!list || !word_l)
         errx(EXIT_FAILURE, "detect_words_bounds : wrong input");
 
     x_min = 0;
@@ -134,9 +134,10 @@ struct simple_surface**  word,int *word_count,
 		/* Adds the word to the dynamic array. */
 
                 if (word_max_x >= word_min_x) {
-			word[*word_count]->w=word_max_x - word_min_x + 1;
-			word[*word_count]->h=band_end - band_start + 1;
-			make_chunck(word[*word_count],word_max_x, band_start,word_min_x, band_end);
+			word_l->word->w=word_max_x - word_min_x + 1;
+			word_l->word->h=band_end - band_start + 1;
+			make_chunck(word_l->word,word_max_x, band_start,word_min_x, band_end);
+			word_l=word_l->next;
 		}
 	     }	    
 	}
