@@ -2,7 +2,7 @@
 #include "detection_manager.h"
 #include "cell_detection.h"
 #include "dominant_color.h"
-#include "grid_detection.h"
+#include "new_grid_list_detection.h"
 #include "word_list_detection.h"
 #include "letter_detection.h"
 #include <err.h>

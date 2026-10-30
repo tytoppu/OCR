@@ -178,7 +178,7 @@ int cell_size_detector(struct simple_surface* simple, Uint8 ancre, char axe){
 
 
 
-struct simple_surface*** build_cells(struct simple_surface* simple, Uint8 ancre){
+struct cell_grid* build_cells(struct simple_surface* simple, Uint8 ancre){
 
     if (!simple)
         errx(EXIT_FAILURE, "build_cells : wrong input : simple");
@@ -191,6 +191,7 @@ struct simple_surface*** build_cells(struct simple_surface* simple, Uint8 ancre)
     int widerness = simple->w / w_cell;
     int highterness = simple->h / h_cell;
 
+    struct cell_grid* grid = intit_cell_grid(widerness, highterness);
     struct simple_surface*** new = malloc(highterness * sizeof(struct simple_surface**));
 
     for(int y = 0; y<highterness; y++){
@@ -199,7 +200,8 @@ struct simple_surface*** build_cells(struct simple_surface* simple, Uint8 ancre)
             new[y][x] = make_chunck(simple, x*w_cell, y*h_cell, (x+1)*w_cell, (y+1)*h_cell);
         }
     }
-    return new;
+    grid->simple = new;
+    return grid;
 }
 
 

@@ -46,17 +46,17 @@ void test_decouping(struct simple_surface* simple, Uint8 ancre){
     struct simple_surface* grid = NULL;
     struct simple_surface* list = NULL;
     dectet_grid_and_list(simple, grid, list, ancre);
-    struct simple_surface*** horeur = build_cells(grid, ancre);
+    struct cell_grid* easy = build_cells(grid, ancre);
 
     char* name = NULL;
-    for (size_t x = 0; ; x++){
-        for (size_t x = 0; ; x++){
+    for (int y = 0; easy->h; y++){
+        for (int x = 0; easy->w; x++){
             name = naming_point_bnp("result_test/letter", x, y);
-            save_simple(horeur[x][y], name);
+            save_simple(easy[x][y], name);
             free(name);
         }
-
     }
+    destroy_cell_grid(easy);
 }
 
 

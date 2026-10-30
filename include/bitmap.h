@@ -13,8 +13,10 @@ void save_simple(struct simple_surface* simple, const char *path);
 // struct simple_surface
 
 struct simple_surface* init_simple_surface(int w, int h);
+struct cell_grid* intit_cell_grid(int w, int h);
 SDL_Surface* simple_surface_to_surface(struct simple_surface* simple);
 void destroy_simple_surface(struct simple_surface* simple);
+void destroy_cell_grid(struct cell_grid* grid);
 
 
 // traitement elementaire

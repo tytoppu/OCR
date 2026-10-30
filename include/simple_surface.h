@@ -10,19 +10,32 @@ struct simple_surface {      // suppose que l'image a été grayscalée
 };
 
 struct cell_grid {
-    int rows;
-    int cols;
+    int w;
+    int h;
     struct simple_surface*** simple;   // cells[row][col]
 };
 
 struct word_liste{
     struct letre_list* letre;
+    struct simple_surface* word;
     struct word_liste* next;
-}
+};
 
 struct letre_list{
     struct simple_surface* letre;
     struct letre_list* next;
-}
+};
 
 #endif
+
+
+/*
+decoupe_words (struct simple_surface) -> struct word_liste*
+decoupe_leter (struct word_liste) -> struct letre_list*
+
+
+decoupe_tout (struct simple_surface) : 
+    decoupe_words(struct simple_surface)
+    for word in decoupe_words : decoupe_leter()
+
+*/
