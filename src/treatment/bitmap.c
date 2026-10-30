@@ -50,6 +50,10 @@ void save_simple(struct simple_surface* simple, const char *path){
             struct simple_surface
 ======================================== */
 
+
+// init
+
+
 struct simple_surface* init_simple_surface(int w, int h){
     struct simple_surface* new = malloc(sizeof(struct simple_surface));
     if(!new) errx(EXIT_FAILURE, "malloc in init_simple_surface");
@@ -62,9 +66,9 @@ struct simple_surface* init_simple_surface(int w, int h){
     return new;
 }
 
-struct cell_grid* intit_cell_grid(int w, int h){
+struct cell_grid* init_cell_grid(int w, int h){
     struct cell_grid* new = malloc(sizeof(struct cell_grid));
-    if(!new) errx(EXIT_FAILURE, "malloc in intit_cell_grid");
+    if(!new) errx(EXIT_FAILURE, "malloc in init_cell_grid");
 
     new->w = w;
     new->h = h;
@@ -74,6 +78,93 @@ struct cell_grid* intit_cell_grid(int w, int h){
 
 }
 
+struct word_liste* init_word_liste(void){
+    struct word_liste* new = malloc(sizeof(struct word_liste));
+    if(!new) errx(EXIT_FAILURE, "malloc in init_word_liste");
+
+    new->letre = NULL;
+    new->word = NULL;
+    new->next = NULL;
+
+    return new;
+}
+
+struct letre_list* init_letre_list(void){
+    struct letre_list* new = malloc(sizeof(struct letre_list));
+    if(!new) errx(EXIT_FAILURE, "malloc in init_letre_list");
+
+    new->letre = NULL;
+    new->next = NULL;
+
+    return new;
+}
+
+
+// destroy
+
+
+void destroy_simple_surface(struct simple_surface* simple){
+    if (!simple) return;
+
+    if (simple->gray) free(simple->gray);
+    free(simple);
+}
+
+void destroy_cell_grid(struct cell_grid* grid){
+    if (!grid) return;
+    if (grid->simple){
+        for (int y = 0; y<grid->h; y++){
+            if (grid->simple[y]){
+                for (int x = 0; x<grid->w; x++) 
+                    if (grid->simple[y][x]) 
+                        destroy_simple_surface(grid->simple[y][x]);
+                free(grid->simple[y]);
+            }
+        }
+        free(grid->simple);
+    }
+    free(grid);   
+}
+
+void destroy_letre_list(struct letre_list* letre_l){
+    if(!letre_l) return;
+    //errx(EXIT_FAILURE, "destroy_letre_list : free nothing");
+
+    struct letre_list* parcourt = letre_l;
+    struct letre_list* prv = NULL;
+    while (parcourt){
+        prv = parcourt;
+        parcourt = parcourt->next;
+
+        destroy_simple_surface(prv->letre);
+        free(prv);
+        prv = NULL;
+
+    }
+}
+
+void destroy_word_liste(struct word_liste* word_l){
+    if(!word_l) return ;
+    //errx(EXIT_FAILURE, "init_word_liste : free nothing");
+
+    struct word_liste* parcourt = word_l;
+    struct word_liste* prv = NULL;
+    while (parcourt){
+        prv = parcourt;
+        parcourt = parcourt->next;
+
+        destroy_letre_list(prv->letre);
+        destroy_simple_surface(prv->word);
+        free(prv);
+        prv = NULL;
+
+    }
+}
+
+
+
+
+// other
 
 
 SDL_Surface* simple_surface_to_surface(struct simple_surface* simple){
@@ -97,27 +188,31 @@ SDL_Surface* simple_surface_to_surface(struct simple_surface* simple){
     return new;
 }
 
-void destroy_simple_surface(struct simple_surface* simple){
-    if (!simple) return;
+void append_word_liste(struct word_liste** word_l, struct word_liste* new){
+    if(!word_l) errx(EXIT_FAILURE, "append_word_liste : word_l does'n exist");
+    
+    if(!(*word_l)) {
+        *word_l = new;
+        return;
+    }
 
-    if (simple->gray) free(simple->gray);
-    free(simple);
+    struct word_liste* parcourt = *word_l;
+    while(parcourt->next) parcourt = parcourt->next;
+    parcourt->next = new;
 }
 
-void destroy_cell_grid(struct cell_grid* grid){
-    if (!grid) return;
-    if (grid->simple){
-        for (int y = 0; y<grid->h; y++){
-            if (grid->simple[y]){
-                for (int x = 0; x<grid->w; x++) 
-                    if (grid->simple[y][x]) 
-                        free(grid->simple[y][x]);
-                free(grid->simple[y]);
-            }
-        }
-        free(grid->simple);
+
+void append_letre_list(struct letre_list** letre_l, struct letre_list* new){
+    if(!letre_l) errx(EXIT_FAILURE, "append_letre_list : letre_l does'n exist");
+    
+    if(!(*letre_l)) {
+        *letre_l = new;
+        return;
     }
-    free(grid);   
+
+    struct letre_list* parcourt = *letre_l;
+    while(parcourt->next) parcourt = parcourt->next;
+    parcourt->next = new;
 }
 
 /* ========================================
@@ -127,7 +222,7 @@ void destroy_cell_grid(struct cell_grid* grid){
 struct simple_surface* make_chunck(struct simple_surface* simple, int x1, int y1, int x2, int y2){
     /*
      * renvoi une struct simple_surface 
-     * contenent les pixel du chunck de (x1,y1) exclu a (x2y2) exclu
+     * contenent les pixel du chunck de (x1,y1) inclu a (x2y2) inclu
      */
 
     if (x1 > x2) {

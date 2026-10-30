@@ -12,11 +12,21 @@ void save_simple(struct simple_surface* simple, const char *path);
 
 // struct simple_surface
 
+//init
 struct simple_surface* init_simple_surface(int w, int h);
-struct cell_grid* intit_cell_grid(int w, int h);
-SDL_Surface* simple_surface_to_surface(struct simple_surface* simple);
+struct cell_grid* init_cell_grid(int w, int h);
+struct word_liste* init_word_liste(void);
+struct letre_list* init_letre_list(void);
+//destroy
 void destroy_simple_surface(struct simple_surface* simple);
 void destroy_cell_grid(struct cell_grid* grid);
+void destroy_letre_list(struct letre_list* letre_l);
+void destroy_word_liste(struct word_liste* word_l);
+//other
+SDL_Surface* simple_surface_to_surface(struct simple_surface* simple);
+void append_word_liste(struct word_liste** word_l, struct word_liste* new);
+void append_letre_list(struct letre_list** letre_l, struct letre_list* new);
+
 
 
 // traitement elementaire
@@ -32,3 +42,14 @@ void set_pixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 
 
 #endif /* BITMAP_H */
+
+
+
+
+
+
+
+
+
+
+

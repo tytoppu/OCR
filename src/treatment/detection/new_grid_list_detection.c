@@ -5,6 +5,9 @@
 
 
 void where_is_anchor(struct simple_surface* simple, int* col, int* row, Uint8 ancre){
+    /*
+     * rempli col et row pour mapper ou est l'ancre sur simple
+     */
     for(int y = 0; y<simple->h; y++){
         for(int x = 0; x<simple->w; x++){
             if (simple->gray[y*simple->w + x] == ancre) {
@@ -19,6 +22,10 @@ void where_is_anchor(struct simple_surface* simple, int* col, int* row, Uint8 an
 
 struct simple_surface* scrap(struct simple_surface* simple, int* col, int* row, 
         int* l, int* r, int* t, int* b){
+    /*
+     * scrap l'image au minimum (enlever les marge en gros)
+     * renvoi les left right top bottom de cette nouvelle image scratch
+     */
     int left = 0;
     int right = simple->w - 1;
     int top = 0;
@@ -38,6 +45,25 @@ struct simple_surface* scrap(struct simple_surface* simple, int* col, int* row,
 
     return make_chunck(simple, left, top, right, bottom);
 }
+
+
+struct simple_surface* mini_scrap(struct simple_surface* simple, int x1, int y1, int x2, int y2, Uint8 ancre){
+    struct simple_surface* temp = make_chunck(simple, x1, y1, x2, y2);
+    int left;
+    int right;
+    int top;
+    int bottom;
+    int *col = calloc(temp->w, sizeof(int));
+    int *row = calloc(temp->h, sizeof(int));
+    if (!col || !row) errx(EXIT_FAILURE, "mini_scrap : calloc");
+    where_is_anchor(temp, col, row, ancre);
+    struct simple_surface* mini_scratch = scrap(temp, col, row, &left, &right, &top, &bottom);
+    free(col);
+    free(row);
+    destroy_simple_surface(temp);
+    return mini_scratch;
+}
+
 
 void max_empty_plage (int* array, int size, double seuil, int* len_out, int* x_out){
     int len = 0;

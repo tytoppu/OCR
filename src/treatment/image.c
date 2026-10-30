@@ -14,7 +14,6 @@
 */
 
 char* naming_point_bnp(const char* prefix, int x, int y) {
-    
     int len = snprintf(NULL, 0, "%s_%d_%d.bmp", prefix, x, y);
     if (len < 0) return NULL;
     len++;
@@ -24,142 +23,61 @@ char* naming_point_bnp(const char* prefix, int x, int y) {
     snprintf(new_char, len, "%s_%d_%d.bmp", prefix, x, y);
     return new_char;
 }
-/*
-void pretreatment(SDL_Surface* surface){
-    struct simple_surface* normalized = normalizer(surface);
 
-    //SDL_Surface* normalized_surface = simple_surface_to_surface(normalized);
 
-    DetectionData data = {0};
-    run_detection(normalized, &data);
+void cell_grid_to_bmp(struct cell_grid* cell){
+    char* name = NULL;
+    for (int y = 0; y<cell->h; y++){
+        for (int x = 0; x<cell->w; x++){
+            name = naming_point_bnp("result_test/test_image_decouping/grid/cell", x, y);
+            save_simple(cell->simple[x][y], name);
+            free(name);
+        }
+    }
+}
 
-    int x = 0;
+
+
+void word_liste_to_bmp(struct word_liste* word){
+    char* name = NULL;
+    struct word_liste* parcourt_word = word;
+    struct letre_list* parcourt_letre = NULL;
     int y = 0;
-    int rows = data.grid.rows;
-    int columns = data.grid.columns;
-    Rectangle bounds;
-    struct simple_surface* chunck = NULL;
-    char* path = NULL;
+    int x = 0;
+    while(parcourt_word){
+        name = naming_point_bnp("result_test/test_image_decouping/list/words/word", 0, y);
+        save_simple(parcourt_word->word, name);
+        free(name);
 
-    while(y<rows){
-        x = 0;
-        while(x<columns){
-            bounds = data.cells[y][x].bounds;
-            chunck = make_chunck(normalized, bounds.top_left.x, bounds.top_left.y, 
-                bounds.bottom_right.x, bounds.bottom_right.y);
-            path = naming_point_bnp("test/image_decouping/CellCoordinates/", x, y);
-            save_simple(chunck, path);
-            free(path);
+        parcourt_letre = parcourt_word->letre;
+        x = 1;
+        while(parcourt_letre){
+            name = naming_point_bnp("result_test/test_image_decouping/list/leters/leter", x, y);
+            save_simple(parcourt_letre->letre, name);
+            free(name);
+
+            parcourt_letre = parcourt_letre->next;
             x++;
         }
-        y++; 
-    } 
-
+        parcourt_word = parcourt_word->next;
+        y++;
+    }
 }
-*/
 
 
-/*
+void pretreatment(SDL_Surface* surface, double angle){
+    Uint8 ancre;
+    struct simple_surface* normalized = normalizer(surface, angle, &ancre);
 
-int detect_grid_dimensions(
-    const unsigned char *image,
-    int width,
-    int height,
-    int stride,
-    GridCoordinates *grid,
-    int colors
-);
+    struct cell_grid* cell = NULL;
+    struct word_liste* word = NULL;
+    run_detection(normalized, &cell, &word, ancre);
 
+    cell_grid_to_bmp(cell);
+    word_liste_to_bmp(word);
 
+    destroy_simple_surface(normalized);
+    destroy_cell_grid(cell);
+    destroy_word_liste(word);
+}
 
-
-
-
-
-struct simple_surface* make_chunck(struct simple_surface* simple, int x1, int y1, int x2, int y2)
-void destroy_simple_surface(struct simple_surface* simple)
-void save_simple(struct simple_surface* simple, const char *path)
-
-typedef struct
-{
-
-    GridCoordinates grid;
-    WordListCoordinates word_list;
-
-    int cell_count;
-    CellCoordinates **cells;
-
-    int grid_letter_count;
-    LetterCoordinates *grid_letters;
-
-    int word_count;
-    DetectedWord *words;
-} DetectionData;
-
-typedef struct
-{
-    Rectangle bounds;
-    int rows;
-    int columns;
-    int cell_width;
-    int cell_height;
-} GridCoordinates
-
-
-typedef struct
-{
-    Rectangle bounds;
-    WordListSide side;
-} WordListCoordinates;
-
-
-
-typedef struct
-{
-    int x;
-    int y;
-} Point;
-
-
-typedef struct
-{
-    Point top_left;
-    Point top_right;
-    Point bottom_right;
-    Point bottom_left;
-} Rectangle;
-
-
-
-
-
-
-typedef struct
-{
-    Rectangle bounds;
-    int row;
-    int column;
-} CellCoordinates;
-
-
-
-//coordinates of a letter
-
-typedef struct
-{
-    Rectangle bounds;
-} LetterCoordinates;
-
-
-
-//coordinate of a word and its letters
-
-typedef struct
-{
-    Rectangle bounds;
-    char *word;
-    int letter_count;
-    LetterCoordinates *letters;
-} DetectedWord;
-
-*/

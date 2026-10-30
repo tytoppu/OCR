@@ -5,7 +5,7 @@
 #include "filter.h"
 #include "new_grid_list_detection.h"
 
-
+#include  <stdlib.h>
 #include  <err.h>
 
 /* ========================================
@@ -25,11 +25,7 @@ void easy_save(struct simple_surface* simple, const char* path){
 ======================================== */
 
 
-/*
-void test_image_decouping_CellCoordinates(SDL_Surface* surface){
-    pretreatment(surface);
-}
-*/
+
 
 void  test_cell_size_detector(struct simple_surface* simple, Uint8 ancre, int x1, int y1, int x2, int y2, char axe){
     struct simple_surface* new_simple = make_chunck(simple, x1, y1, x2, y2);
@@ -48,7 +44,8 @@ void test_decouping(struct simple_surface* simple, Uint8 ancre){
     struct simple_surface* list = NULL;
 
     detect_grid_and_list(simple, &grid, &list, ancre);
-    struct cell_grid* easy = build_cells(grid, ancre);
+    struct cell_grid* easy = NULL;
+    build_cells(grid, &easy, ancre);
 
     char* name = NULL;
     for (int y = 0; y<easy->h; y++){
@@ -61,6 +58,10 @@ void test_decouping(struct simple_surface* simple, Uint8 ancre){
     destroy_cell_grid(easy);
 }
 
+void test_pretreatment(SDL_Surface* surface, int angle){
+    pretreatment(surface, angle);
+}
+
 
 
 /* ========================================
@@ -70,21 +71,22 @@ void test_decouping(struct simple_surface* simple, Uint8 ancre){
 
 int main(int argc, char *argv[])
 {
-    if (argc != 2) errx(EXIT_FAILURE, "Wrong input");
+    if (argc != 3) errx(EXIT_FAILURE, "Wrong input");
     SDL_Surface* surface = load_standar_picture (argv[1]);
     if (!surface) errx(EXIT_FAILURE, "Wrong input");
-    Uint8 ancre;
-    struct simple_surface* simple = normalizer(surface, &ancre);
+    //Uint8 ancre;
+    //struct simple_surface* simple = normalizer(surface, &ancre);
 
     //test_image_decouping_CellCoordinates(surface);
 
     //test_cell_width_detector(simple, 0, 190, 25, 770, 605);
     //test_cell_height_detector(simple, 0, 190, 25, 770, 605);
     //test_cell_size_detector(simple, 0, 190, 25, 770, 605, 'y');
-    test_decouping(simple, ancre);
+    //test_decouping(simple, ancre);
     
-    destroy_simple_surface(simple);
+    //destroy_simple_surface(simple);
 
+    test_pretreatment(surface, atof(argv[2]));
     SDL_FreeSurface(surface);
 
     printf("We are alive, all test past\n");

@@ -43,6 +43,6 @@ int evaluate_rotation(struct simple_surface* simple, double angle);
 
 // MAIN : normalizer
 
-struct simple_surface* normalizer(SDL_Surface *surface, Uint8* ancre);
+struct simple_surface* normalizer(SDL_Surface *surface, double angle, Uint8* ancre);
 
 #endif  /* FILTER_H */

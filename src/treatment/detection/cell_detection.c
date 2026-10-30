@@ -30,100 +30,6 @@ void corelation(double* array, int size, double** output_correlation){
 }
 
 
-/*
-
-int cell_width_detector(struct simple_surface* simple, Uint8 ancre){
-    double* width_histogramme = calloc(simple->w, sizeof(double));
-    if (!width_histogramme) errx(EXIT_FAILURE, "cell_width_detector : calloc failed");
-    for(int y = 0; y<simple->h; y++){
-        for(int x = 0; x<simple->w; x++){
-            if (simple->gray[y*simple->w + x] == ancre) width_histogramme[x] ++;
-        }
-    }
-
-    double mean = 0.0;
-    for(int i = 0; i < simple->w; i++) mean += width_histogramme[i];
-    mean = mean / simple->w;
-    for(int i = 0; i < simple->w; i++) width_histogramme[i] -= mean;
-
-    double* corr = NULL;
-    corelation(width_histogramme, simple->w, &corr);
-
-    free(width_histogramme);
-    double corr0 = corr[0];
-    for (int i = 0; i < simple->w; i++) corr[i] /= corr0;
-
-    int k = 0;
-    int limite = simple->w / 2;
-    while(k < limite && corr[k] >= 0.1)             // 1er phase
-        k++;
-
-    int max_glob = k;
-    for(int i = k; i < limite; i++)                     // max_glob
-        if (corr[i] > corr[max_glob]) max_glob = i; 
-
-
-    for(int i = k+1; i < limite-1; i++){                         // max_glob
-        if (corr[i] >= corr[max_glob] * 0.7 && corr[i] >= corr[i+1] && corr[i] >= corr[i-1]) {
-            free(corr);
-            return i;
-        }
-    }
-                   
-    free(corr);
-    err(EXIT_FAILURE, "cell_width_detector : no fiable widh cell found");
-
-}
-
-
-int cell_height_detector(struct simple_surface* simple, Uint8 ancre){
-    double* height_histogramme = calloc(simple->h, sizeof(double));
-    if (!height_histogramme) errx(EXIT_FAILURE, "cell_height_detector : calloc failed");
-    for(int y = 0; y<simple->h; y++){
-        for(int x = 0; x<simple->w; x++){
-            if (simple->gray[y*simple->w + x] == ancre) height_histogramme[y] ++;
-        }
-    }
-
-    double mean = 0.0;
-    for(int i = 0; i < simple->h; i++) mean += height_histogramme[i];
-    mean = mean / simple->h;
-    for(int i = 0; i < simple->h; i++) height_histogramme[i] -= mean;
-
-    double* corr = NULL;
-    corelation(height_histogramme, simple->h, &corr);
-
-    free(height_histogramme);
-    double corr0 = corr[0];
-    for (int i = 0; i < simple->h; i++) corr[i] /= corr0;
-
-    int k = 0;
-    int limite = simple->h / 2;
-    while(k < limite && corr[k] >= 0.1)             // 1er phase
-        k++;
-
-    int max_glob = k;
-    for(int i = k; i < limite; i++)                     // max_glob
-        if (corr[i] > corr[max_glob]) max_glob = i; 
-
-
-    for(int i = k+1; i < limite-1; i++){                         // max_glob
-        if (corr[i] >= corr[max_glob] * 0.7 && corr[i] >= corr[i+1] && corr[i] >= corr[i-1]) {
-            free(corr);
-            return i;
-        }
-    }
-                   
-    free(corr);
-    err(EXIT_FAILURE, "cell_height_detector : no fiable widh cell found");
-
-}
-
-
-*/
-
-
-
 int cell_size_detector(struct simple_surface* simple, Uint8 ancre, char axe){
     int imp;
     if (axe == 'x') imp = simple->w;
@@ -178,7 +84,7 @@ int cell_size_detector(struct simple_surface* simple, Uint8 ancre, char axe){
 
 
 
-struct cell_grid* build_cells(struct simple_surface* simple, Uint8 ancre){
+void build_cells(struct simple_surface* simple, struct cell_grid** cell, Uint8 ancre){
 
     if (!simple)
         errx(EXIT_FAILURE, "build_cells : wrong input : simple");
@@ -190,8 +96,10 @@ struct cell_grid* build_cells(struct simple_surface* simple, Uint8 ancre){
     int h_cell = cell_size_detector(simple, ancre, 'y');
     int widerness = simple->w / w_cell;
     int highterness = simple->h / h_cell;
+    //int widerness = (int)round((double) simple->w / w_cell);
+    //int highterness = (int)round((double) simple->h / h_cell);
 
-    struct cell_grid* grid = intit_cell_grid(widerness, highterness);
+    struct cell_grid* grid = init_cell_grid(widerness, highterness);
     struct simple_surface*** new = malloc(highterness * sizeof(struct simple_surface**));
 
     for(int y = 0; y<highterness; y++){
@@ -201,29 +109,5 @@ struct cell_grid* build_cells(struct simple_surface* simple, Uint8 ancre){
         }
     }
     grid->simple = new;
-    return grid;
+    *cell = grid;
 }
-
-
-
-
-
-
-/*
-// Frees the memory used by the array.
-
-// cells: array to free.
-// rows: number of allocated rows.
-
-void free_cells(CellCoordinates **cells, int rows)
-{
-    if (cells == NULL)
-        errx(EXIT_FAILURE, "free_cells : cells is NULL, free null ?");
-
-    for (int row = 0; row < rows; row++)
-        free(cells[row]);
-
-    free(cells);
-}
-*/
-

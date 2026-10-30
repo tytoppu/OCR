@@ -6,10 +6,9 @@
 #include "detection_data.h"
 
 //Launch all detection steps
-void run_detection(struct simple_surface* simple, DetectionData *data);
+void run_detection(struct simple_surface* simple, struct cell_grid** cell, struct word_liste** word, Uint8 ancre);
 
-/* Frees the memory allocated in DetectionData. */
-void free_detection_data(DetectionData *data);
+
 
 #endif /* DETECTION_MANAGER_H */
 

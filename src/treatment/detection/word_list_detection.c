@@ -1,5 +1,7 @@
-#include "../../../include/word_list_detection.h"
+#include "word_list_detection.h"
+#include "new_grid_list_detection.h"
 #include <err.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 /* The image contains one byte per pixel:
@@ -7,157 +9,111 @@ black = 0 white = 255. */
 
 
 
+void detect_words_bounds(struct simple_surface* list, struct word_liste** word, Uint8 ancre){
 
-#define INK_THRESHOLD 128
-#define MAX_BLANK_GAP 1
+    int *col = calloc(list->w, sizeof(int));
+    int *row = calloc(list->h, sizeof(int));
+    if (!row || !col) errx(EXIT_FAILURE, "detect_words_bounds : calloc");
+    where_is_anchor(list, col, row, ancre);
+    free(col);
 
-int is_ink(struct simple_surface* list,
-                  int x,
-                  int y,
-		  int colors)
-{
-    return list->gray[(size_t)y * (size_t)list->w + (size_t)x]
-           ==colors;
-}
+    struct word_liste* word_l = NULL;
 
-
-/*
-* Detects the boundaries of each word.
-*
-* Hypothesis:
-* - one word per line;
-* - a single column of words;
-* - word lines are separated by whitespace.
-*/
-
-
-
-void detect_words_bounds(struct simple_surface* list,
-struct word_liste*  word_l,int *word_count,
-			int colors)
-{
-    int x_min, x_max, y_min, y_max;
-    int capacity = 0;
-    int in_band = 0;
-    int band_start = 0;
-    int blank_rows = 0;
-
-    DetectedWord *result = NULL;
-
-    if (!word_count)
-        errx(EXIT_FAILURE, "detect_words_bounds : wrong input");
-
-    *word_count = 0;
-
-    if (!list || !word_l)
-        errx(EXIT_FAILURE, "detect_words_bounds : wrong input");
-
-    x_min = 0;
-    x_max = list->w-1;
-    y_min = 0;
-    y_max = list->h-1;
-
-    if (x_min < 0 || x_max >= list->w ||
-        y_min < 0 || y_max >= list->h ||
-        x_min > x_max || y_min > y_max)
-        errx(EXIT_FAILURE, "detect_words_bounds : wrong input in word_list->bounds");
+    //int len_min = list->h * 0.01;
+    int y_start = 0;
+    //int len = 0;
+    int seuil = list->w /100 + 1;
+    int flag = 0;           // 1 quand est en mode noire et 0 sinon (sur les bande)
+    int y = 0;
 
 
 
 
-/*
-* Loops through the pixel lines of the area.
-* The extra margin helps to properly close
-* the last line of text.
-*/ 
-    int inv;
-    if (colors==0)
-        inv=255;
-    else
-        inv=0;
-
-
-    for (int y = y_min;
-         y <= y_max + inv + 1;
-         ++y) {
-
-        int row_has_ink = 0;
-
-        if (y <= y_max) {
-            for (int x = x_min; x <= x_max; ++x) {
-                if (is_ink(list, x, y,colors)) {
-                    row_has_ink = 1;
-                    break;
+    while(y < list->h){
+        if (row[y] < seuil){
+            if(flag == 1) {
+                if (y - y_start >= 5){
+                    struct word_liste* new = init_word_liste();
+                    new->word = mini_scrap(list, 0, y_start, list->w-1, y-1, ancre);
+                    //make_chunck(list, 0, y_start, list->w-1, y-1);
+                    append_word_liste(&word_l, new);
                 }
+                flag = 0;
+                //len = 0;
+                }
+                //len ++
+            }
+        else {
+            if(flag == 0) {
+                y_start = y;
+                flag = 1;
             }
         }
-   
+        y++;
 
-        if (row_has_ink) {
-            if (!in_band) {
-                band_start = y;
-                in_band = 1;
-            }
-
-            blank_rows = 0;
-
-        } else if (in_band) {
-            ++blank_rows;
-
-            if (blank_rows > inv) {
-                int band_end = y - blank_rows;
-                int word_min_x = list->w;
-                int word_max_x = -1;
-
-
-		/*
-* Searches for the horizontal limits
-* of the word in the detected strip.
-*/
-
-                for (int yy = band_start;
-                     yy <= band_end;
-                     ++yy) {
-
-                    for (int x = x_min; x <= x_max; ++x) {
-                        if (is_ink(list, x, yy,colors)) {
-                            if (x < word_min_x)
-                                word_min_x = x;
-
-                            if (x > word_max_x)
-                                word_max_x = x;
-                        }
-                    }
-                }
-
-		
-		/* Adds the word to the dynamic array. */
-
-                if (word_max_x >= word_min_x) {
-			word_l->word->w=word_max_x - word_min_x + 1;
-			word_l->word->h=band_end - band_start + 1;
-			make_chunck(word_l->word,word_max_x, band_start,word_min_x, band_end);
-			word_l=word_l->next;
-		}
-	     }	    
-	}
-    }	    
-}
-
-
-/* Free the memory allocated for the detected words. */
-/*
-void free_detected_words(DetectedWord *words,
-                         int word_count)
-{
-    if (!words)
-        return;
-
-    for (int i = 0; i < word_count; ++i) {
-        free(words[i].word);
-        free(words[i].letters);
+    }
+    if (flag == 1 && y - y_start >= 5){ 
+        struct word_liste* new = init_word_liste();
+        new->word = mini_scrap(list, 0, y_start, list->w-1, y - 1, ancre);
+        append_word_liste(&word_l, new);
     }
 
-    free(words);
+    free(row);
+    *word = word_l;
 }
-*/
+
+
+void detect_word_letters(struct simple_surface* word, struct letre_list** letre, Uint8 ancre){
+    int *col = calloc(word->w, sizeof(int));
+    int *row = calloc(word->h, sizeof(int));
+    if (!row || !col) errx(EXIT_FAILURE, "detect_word_letters : calloc");
+    where_is_anchor(word, col, row, ancre);
+    free(row);
+
+    struct letre_list* letre_l = NULL;
+
+    int x_start = 0;
+    int seuil = word->h /100 + 1;
+    int flag = 0;           // 1 quand est en mode noire et 0 sinon (sur les bande)
+    int x = 0;
+    while(x < word->w){
+        if (col[x] < seuil){
+            if(flag == 1) {
+                if (x - x_start >= 2){
+                    struct letre_list* new = init_letre_list();
+                    new->letre = mini_scrap(word, x_start, 0, x-1, word->h-1, ancre);
+                    append_letre_list(&letre_l, new);
+                }
+                flag = 0;
+            }
+        }
+        else {
+            if(flag == 0) {
+                x_start = x;
+                flag = 1;
+            }
+        }
+        x++;
+
+    }
+    if (flag == 1 && x - x_start >= 2){ 
+        struct letre_list* new = init_letre_list();
+        new->letre = mini_scrap(word, x_start, 0, x-1, word->h-1, ancre);
+        append_letre_list(&letre_l, new);
+    }
+
+    free(col);
+    *letre = letre_l;
+}
+
+
+void detect_everything_in_list(struct simple_surface* list, struct word_liste** word_l,Uint8 ancre){
+    struct word_liste* word = NULL;
+    detect_words_bounds(list, &word, ancre);
+    struct word_liste* parcourt = word;
+    while(parcourt){
+        detect_word_letters(parcourt->word, &(parcourt->letre), ancre);
+        parcourt = parcourt->next;
+    }
+    *word_l = word;
+}

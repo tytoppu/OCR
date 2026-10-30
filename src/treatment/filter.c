@@ -336,7 +336,7 @@ int evaluate_rotation(struct simple_surface simple, double angle){
 ======================================== */
 
 
-struct simple_surface* normalizer(SDL_Surface *surface,Uint8* ancre){
+struct simple_surface* normalizer(SDL_Surface *surface, double angle, Uint8* ancre){
     /*
      * tout les process de traitement d'une image, 
      * apres avoir etait charge, une surface est traiter
@@ -349,8 +349,12 @@ struct simple_surface* normalizer(SDL_Surface *surface,Uint8* ancre){
 
     struct simple_surface* grayscale = start_grayscale(surface);
 
-    struct simple_surface* median = median_filter(grayscale, histogram);
+    struct simple_surface* rotate = rotate_picture(grayscale, angle, 255);
+    save_simple(rotate, "result_test/getrotated.bmp");
     destroy_simple_surface(grayscale);
+
+    struct simple_surface* median = median_filter(rotate, histogram);
+    destroy_simple_surface(rotate);
 
     struct simple_surface* contraster = contrast(median, histogram);
     destroy_simple_surface(median);
