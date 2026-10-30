@@ -53,7 +53,7 @@ void test_cutting(struct simple_surface* simple, Uint8 anchor){
         for (int x = 0; x<easy->w; x++){
             name = naming_point_bmp("result_test/test_image_cutting/letter",
                     x, y);
-            save_simple(easy->simple[x][y], name);
+            save_simple(easy->simple[y][x], name);
             free(name);
         }
     }

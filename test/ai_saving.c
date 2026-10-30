@@ -87,7 +87,7 @@ int main(void)
         images[s] = malloc(nb_pixels * sizeof(**images));
         if (!images[s]) {
             for (size_t n = 0; n < s; n++)
-                free(images[s]);
+                free(images[n]);
             free(images);
             free(labels);
             destroy_network(network);

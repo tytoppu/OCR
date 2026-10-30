@@ -373,6 +373,6 @@ struct simple_surface* normalizer(SDL_Surface *surface, double angle,
     struct simple_surface* binary = black_and_white(contrasted, anchor);
     destroy_simple_surface(contrasted);
 
-    if(!contrasted) err(EXIT_FAILURE, "normalizer FAILED");
+    if(!binary) errx(EXIT_FAILURE, "normalizer FAILED");
     return binary;
 }

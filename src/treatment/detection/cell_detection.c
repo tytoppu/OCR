@@ -81,7 +81,7 @@ int cell_size_detector(struct simple_surface* simple, Uint8 anchor, char axis){
     }
                    
     free(corr);
-    err(EXIT_FAILURE, "cell_width_detector : no reliable cell width found");
+    errx(EXIT_FAILURE, "cell_width_detector : no reliable cell width found");
 }
 
 

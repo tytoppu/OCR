@@ -1,4 +1,10 @@
 #include "image.h"
+#include "bitmap.h"
+#include "filter.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <err.h>
 
 
 /* ========================================
@@ -21,7 +27,8 @@ void easy_save(struct simple_surface* simple, const char* path){
 
 
 void test_normalizer(SDL_Surface* surface){
-    struct simple_surface* simple = normalizer(surface);
+    Uint8 anchor;
+    struct simple_surface* simple = normalizer(surface, 0, &anchor);
     easy_save(simple, "result_test/supra_grayscale.bmp");
 }
 
@@ -44,7 +51,8 @@ void test_normalizer_steps(SDL_Surface *surface){
     save_simple(contrasted, "result_test/3.bmp");
 
 
-    struct simple_surface* binary = black_and_white(contrasted);
+    Uint8 anchor;
+    struct simple_surface* binary = black_and_white(contrasted, &anchor);
     destroy_simple_surface(contrasted);
     save_simple(binary, "result_test/4.bmp");
 
@@ -59,8 +67,7 @@ void test_make_chunk(struct simple_surface* init,
 
 
 
-void test_rotate_picture(struct simple_surface* simple, double angle, 
-        Uint8 background){
+void test_rotate_picture(struct simple_surface* simple, double angle){
     struct simple_surface* new = rotate_picture(simple, angle);
     easy_save(new, "result_test/getrotated.bmp");
 }
@@ -84,7 +91,7 @@ int main(int argc, char *argv[])
 
     //test_make_chunk(simple, 10, 0, 99, 499);
 
-    //test_rotate_picture(simple, 0, 125);
+    //test_rotate_picture(simple, 0);
 
     test_normalizer_steps(surface);
 

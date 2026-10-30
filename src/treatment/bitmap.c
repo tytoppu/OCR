@@ -1,3 +1,6 @@
+// M_PI is not defined in strict C99
+#define _DEFAULT_SOURCE
+
 #include "bitmap.h"
 #include <SDL2/SDL_image.h>
 #include <err.h>

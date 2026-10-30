@@ -14,7 +14,7 @@
 void run_detection(struct simple_surface* simple, struct cell_grid** cell,
         struct word_list** word, Uint8 anchor){
 
-    if (!simple) err(EXIT_FAILURE, "run_detection : wrong input");
+    if (!simple) errx(EXIT_FAILURE, "run_detection : wrong input");
 
     struct simple_surface* grid = NULL;
     struct simple_surface* list = NULL;

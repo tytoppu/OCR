@@ -32,7 +32,7 @@ void cell_grid_to_bmp(struct cell_grid* cell){
         for (int x = 0; x<cell->w; x++){
             name = naming_point_bmp("result_test/test_image_cutting/grid/cell",
                     x, y);
-            save_simple(cell->simple[x][y], name);
+            save_simple(cell->simple[y][x], name);
             free(name);
         }
     }

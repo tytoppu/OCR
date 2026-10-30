@@ -14,5 +14,6 @@ int main(int argc, char *argv[]){
     if (!surface) errx(EXIT_FAILURE, "Wrong input");
 
     pretreatment(surface, atof(argv[2]));
+    SDL_FreeSurface(surface);
 
 }
