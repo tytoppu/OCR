@@ -256,12 +256,18 @@ struct simple_surface* make_chunk(struct simple_surface* simple,
     return chunk;
 }
 
-struct simple_surface* rotate_picture(struct simple_surface* simple,
-        double angle, Uint8 background){
+struct simple_surface* rotate_picture(struct simple_surface* simple, 
+        double angle){
     /*
      * returns a struct simple_surface
      * which is the simple parameter but rotated. nothing was freed
      */
+
+
+    double background = 0.0;
+    int tot = simple->w * simple->h;
+    for(int i = 0; i < tot ; i++) background += simple->gray[i];
+    background = background / tot;
 
     double theta = angle * M_PI / 180.0;
     double c = cos(theta);

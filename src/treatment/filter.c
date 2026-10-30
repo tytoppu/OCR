@@ -359,8 +359,8 @@ struct simple_surface* normalizer(SDL_Surface *surface, double angle,
 
     struct simple_surface* grayscale = start_grayscale(surface);
 
-    struct simple_surface* rotate = rotate_picture(grayscale, angle, 255);
-    save_simple(rotate, "result_test/getrotated.bmp");
+    struct simple_surface* rotate = rotate_picture(grayscale, angle);
+    //save_simple(rotate, "result_test/getrotated.bmp");
     destroy_simple_surface(grayscale);
 
     struct simple_surface* median = median_filter(rotate, histogram);
