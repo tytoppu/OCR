@@ -25,7 +25,8 @@ typedef struct
 //grid info
 
 
-
+//à sup
+/*
 typedef struct
 {
     Rectangle bounds;
@@ -34,7 +35,7 @@ typedef struct
     int cell_width;
     int cell_height;
 } GridCoordinates;
-
+*/
 
 //say if list of words on the right or on the left
 
