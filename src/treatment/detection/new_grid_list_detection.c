@@ -1,4 +1,4 @@
-#include "../../../include/new_grid_list_detection.h"
+#include "new_grid_list_detection.h"
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>

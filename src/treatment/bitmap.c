@@ -104,6 +104,22 @@ void destroy_simple_surface(struct simple_surface* simple){
     free(simple);
 }
 
+void destroy_cell_grid(struct cell_grid* grid){
+    if (!grid) return;
+    if (grid->simple){
+        for (int y = 0; y<grid->h; y++){
+            if (grid->simple[y]){
+                for (int x = 0; x<grid->w; x++) 
+                    if (grid->simple[y][x]) 
+                        free(grid->simple[y][x]);
+                free(grid->simple[y]);
+            }
+        }
+        free(grid->simple);
+    }
+    free(grid);   
+}
+
 /* ========================================
         traitement elementaire
 ======================================== */
