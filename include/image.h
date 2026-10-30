@@ -8,18 +8,18 @@
 #include <stddef.h>
 
 /*
- * Charge un BMP non compresse (24 ou 32 bits), le convertit en niveaux
- * de gris, le redimensionne en largeur x hauteur, puis normalise chaque
- * pixel dans [0.0, 1.0].
+ * Loads an uncompressed BMP (24 or 32 bits), converts it to grayscale,
+ * resizes it to width x height, then normalizes each pixel
+ * to [0.0, 1.0].
  *
- * `destination` doit contenir au moins largeur * hauteur doubles.
+ * `destination` must hold at least width * height doubles.
  *
- * Retourne 1 en cas de succes, 0 en cas d'erreur.
+ * Returns 1 on success, 0 on error.
  */
-int charger_image_bmp_double(const char *chemin,
-                             double *destination,
-                             size_t largeur,
-                             size_t hauteur);
+int load_bmp_image_double(const char *path,
+                          double *destination,
+                          size_t width,
+                          size_t height);
 
 
 #endif

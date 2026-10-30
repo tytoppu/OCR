@@ -1,5 +1,5 @@
 # OCR
-projet ocr :
+OCR project :
 
 
 ## made by ##

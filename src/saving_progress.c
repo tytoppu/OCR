@@ -1,54 +1,54 @@
 #include "../include/saving_progress.h"
 
-void load_ia(struct resaux *resaux, char *filename)
+void load_ai(struct network *network, char *filename)
 {
-    if (!filename || !resaux) errx(EXIT_FAILURE, "load_ai : n'y a pas de resaux ou pas de fichier\n");
+    if (!filename || !network) errx(EXIT_FAILURE, "load_ai : there is no network or no file\n");
 
     FILE *f = fopen(filename, "rb");
-    if (!f) errx(EXIT_FAILURE, "load_ia : can't oppen the file '%s'\n", filename);
+    if (!f) errx(EXIT_FAILURE, "load_ai : can't open the file '%s'\n", filename);
 
 
-    double *biai = malloc(resaux->nombre_neurones * sizeof(double));
-    double *weight = malloc(resaux->nombre_liens * sizeof(double));
+    double *bias = malloc(network->nb_neurons * sizeof(double));
+    double *weight = malloc(network->nb_links * sizeof(double));
 
-    if (fread(biai, sizeof(double), resaux->nombre_neurones, f) != resaux->nombre_neurones ||
-        fread(weight, sizeof(double), resaux->nombre_liens, f)  != resaux->nombre_liens)
-        errx(EXIT_FAILURE, "load_ia : can't read the file %s", filename);
-    
-    for (size_t i = 0; i < resaux->nombre_neurones; i++)
-        resaux->neurones[i].biai = biai[i];
-    
-    for (size_t i = 0; i < resaux->nombre_liens; i++)
-        resaux->liens[i].weight = weight[i];
+    if (fread(bias, sizeof(double), network->nb_neurons, f) != network->nb_neurons ||
+        fread(weight, sizeof(double), network->nb_links, f)  != network->nb_links)
+        errx(EXIT_FAILURE, "load_ai : can't read the file %s", filename);
 
-    free(biai);
+    for (size_t i = 0; i < network->nb_neurons; i++)
+        network->neurons[i].bias = bias[i];
+
+    for (size_t i = 0; i < network->nb_links; i++)
+        network->links[i].weight = weight[i];
+
+    free(bias);
     free(weight);
     fclose(f);
 }
 
 
-void save_ia(struct resaux *resaux, char *filename)
+void save_ai(struct network *network, char *filename)
 {
-    if (!filename || !resaux) errx(EXIT_FAILURE, "save_ia : il n'y a pas de resaux(%p) ou de fichier(%p)\n", resaux, filename);
+    if (!filename || !network) errx(EXIT_FAILURE, "save_ai : there is no network(%p) or no file(%p)\n", network, filename);
 
     FILE *f = fopen(filename, "wb");
-    if (!f) errx(EXIT_FAILURE, "save_ia : can't oppen the file to save the progress\n");
+    if (!f) errx(EXIT_FAILURE, "save_ai : can't open the file to save the progress\n");
 
 
-    double *biai = malloc(resaux->nombre_neurones * sizeof(double));
-    double *weight = malloc(resaux->nombre_liens * sizeof(double));
+    double *bias = malloc(network->nb_neurons * sizeof(double));
+    double *weight = malloc(network->nb_links * sizeof(double));
 
-    for (size_t i = 0; i< resaux->nombre_neurones; i++)
-        biai[i] = resaux->neurones[i].biai;
+    for (size_t i = 0; i< network->nb_neurons; i++)
+        bias[i] = network->neurons[i].bias;
 
-    for (size_t i = 0; i<resaux->nombre_liens; i++)
-        weight[i] = resaux->liens[i].weight;
+    for (size_t i = 0; i<network->nb_links; i++)
+        weight[i] = network->links[i].weight;
 
-    if (fwrite(biai, resaux->nombre_neurones, sizeof(double), f) == 0 || 
-        fwrite(weight, resaux->nombre_liens, sizeof(double), f) == 0)
-        errx(EXIT_FAILURE, "save_ia : can't write on the file %s\n", filename);
-    
-    free(biai);
+    if (fwrite(bias, network->nb_neurons, sizeof(double), f) == 0 ||
+        fwrite(weight, network->nb_links, sizeof(double), f) == 0)
+        errx(EXIT_FAILURE, "save_ai : can't write on the file %s\n", filename);
+
+    free(bias);
     free(weight);
     fclose(f);
 }

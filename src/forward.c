@@ -8,36 +8,36 @@ double sigmoid(double income)
 
 
 
-void forward(struct neurone *neurone)
+void forward(struct neuron *neuron)
 {
-    double somme = neurone->biai;
-    
-    struct list_chaine_lien * current = neurone->all_entre;
+    double sum = neuron->bias;
+
+    struct link_list * current = neuron->all_inputs;
     while (current)
     {
-        somme += current->lien->weight * current->lien->entre->activation;
+        sum += current->link->weight * current->link->input->activation;
         current = current->next;
     }
-    
-    neurone->z = somme;
 
-    neurone->activation = sigmoid(somme);
+    neuron->z = sum;
+
+    neuron->activation = sigmoid(sum);
 }
 
-void forward_couche(struct couche * couche)
+void forward_layer(struct layer * layer)
 {
-    for (size_t i = 0; i < couche->nombre_neurones; i++)
+    for (size_t i = 0; i < layer->nb_neurons; i++)
     {
-        forward(&couche->neurones[i]);
+        forward(&layer->neurons[i]);
     }
 }
 
-void forward_resaux(struct resaux *resaux)
+void forward_network(struct network *network)
 {
-    for (size_t i = 1; i < resaux->nombre_couches; i++)
+    for (size_t i = 1; i < network->nb_layers; i++)
     {
-        forward_couche(&resaux->couches[i]);
-        //printf("couche : %zu\t->\tactivation : %f\n", i, (&resaux->couches[i])->neurones->activation);
+        forward_layer(&network->layers[i]);
+        //printf("layer : %zu\t->\tactivation : %f\n", i, (&network->layers[i])->neurons->activation);
     }
 }
 

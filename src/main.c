@@ -1,4 +1,4 @@
-#include "../include/ia1.h"
+#include "../include/ai1.h"
 #include "../include/forward.h"
 #include "../include/image.h"
 #include "../include/saving_progress.h"
@@ -10,7 +10,7 @@
 
 int main(void)
 {
-    // chaque paramettre equivaux a une couche, le parametre etant le nombre de neurone 
+    // each parameter is a layer, the value being its number of neurons
     const size_t img_size = 32;
     const size_t architecture[] = {
         img_size*img_size,
@@ -18,53 +18,53 @@ int main(void)
         26,
     };
 
-    const size_t nombre_couches = sizeof(architecture) / sizeof(architecture[0]);
+    const size_t nb_layers = sizeof(architecture) / sizeof(architecture[0]);
 
-    //creation du neural network
-    struct resaux *resaux = cree_resaux(nombre_couches, architecture);
-    if (!resaux)
+    //creation of the neural network
+    struct network *network = create_network(nb_layers, architecture);
+    if (!network)
     {
-        fprintf(stderr, "Erreur lors de la creation du reseau.\n");
+        fprintf(stderr, "Error while creating the network.\n");
         return EXIT_FAILURE;
     }
-    //load_ia(resaux, "test_save_ia1");
+    //load_ai(network, "test_save_ai1");
 
-    const size_t nombre_pixels = img_size*img_size;
-    double *pixels = malloc(nombre_pixels * sizeof(*pixels));
+    const size_t nb_pixels = img_size*img_size;
+    double *pixels = malloc(nb_pixels * sizeof(*pixels));
     if (!pixels)
     {
-        destroy_resaux(resaux);
+        destroy_network(network);
         return EXIT_FAILURE;
     }
 
-    if (!charger_image_bmp_double("assets/image.bmp", pixels,
+    if (!load_bmp_image_double("assets/image.bmp", pixels,
          img_size, img_size))
     {
-        fprintf(stderr, "Impossible de charger image.bmp\n");
+        fprintf(stderr, "Unable to load image.bmp\n");
         free(pixels);
-        destroy_resaux(resaux);
+        destroy_network(network);
         return EXIT_FAILURE;
     }
 
-    //activatioon resaux //
+    //network activation //
 
-    for (size_t i = 0; i < nombre_pixels; ++i)
-        resaux->couches[0].neurones[i].activation = pixels[i];
+    for (size_t i = 0; i < nb_pixels; ++i)
+        network->layers[0].neurons[i].activation = pixels[i];
 
-    forward_resaux(resaux);
+    forward_network(network);
 
 
     // print and returns //
 
 
-    printf("Couche      : %zu\n", resaux->nombre_couches);
-    printf("Neurone     : %zu\n", resaux->nombre_neurones);
-    printf("Connexion   : %zu\n", resaux->nombre_liens);
+    printf("Layers      : %zu\n", network->nb_layers);
+    printf("Neurons     : %zu\n", network->nb_neurons);
+    printf("Links       : %zu\n", network->nb_links);
 
     for (size_t i = 0; i < 8; ++i)
     {
-        double sortie=resaux->couches[nombre_couches-1].neurones[i].activation;
-        printf("sortie[%zu] = %f -> %.0f\n", i, sortie, sortie*128);
+        double output=network->layers[nb_layers-1].neurons[i].activation;
+        printf("output[%zu] = %f -> %.0f\n", i, output, output*128);
     }
 
     /*training*/
@@ -77,38 +77,38 @@ int main(void)
     if (!images || !labels) {
         free(images);
         free(labels);
-        destroy_resaux(resaux);
+        destroy_network(network);
         free(pixels);
         return EXIT_FAILURE;
     }
 
     for (size_t s = 0; s < n_samples; ++s)
     {
-        images[s] = malloc(nombre_pixels * sizeof(**images));
+        images[s] = malloc(nb_pixels * sizeof(**images));
         if (!images[s]) {
             for (size_t n = 0; n < s; n++)
                 free(images[s]);
             free(images);
             free(labels);
-            destroy_resaux(resaux);
+            destroy_network(network);
             free(pixels);
             return EXIT_FAILURE;
         }
 
         char path[64];
         snprintf(path, sizeof(path),
-         "assets/lettres/letter_%zu.bmp", s);
+         "assets/letters/letter_%zu.bmp", s);
 
-        if (!charger_image_bmp_double(path, images[s],
+        if (!load_bmp_image_double(path, images[s],
              img_size, img_size))
         {
-            fprintf(stderr, "Impossible de charger %s\n", path);
+            fprintf(stderr, "Unable to load %s\n", path);
             for (size_t n = 0; n <= s; ++n)
                 free(images[n]);
             free(images);
             free(labels);
             free(pixels);
-            destroy_resaux(resaux);
+            destroy_network(network);
             return EXIT_FAILURE;
         }
         labels[s] = s;
@@ -132,25 +132,25 @@ int main(void)
             size_t s = order[k];
 
             /* put the image into the input layer */
-            for (size_t i = 0; i < nombre_pixels; ++i)
-                resaux->couches[0].neurones[i].activation = images[s][i];
+            for (size_t i = 0; i < nb_pixels; ++i)
+                network->layers[0].neurons[i].activation = images[s][i];
 
             for (size_t k = 0; k < 26; ++k)
                 target[k] = 0.0;
             target[labels[s]] = 1.0;
 
-            forward_resaux(resaux);
-            back_propagation(resaux, target);
-            update_weights(resaux, learn_rate);
+            forward_network(network);
+            back_propagation(network, target);
+            update_weights(network, learn_rate);
 
             /*calculates the % of failure SHOULD go down each epoch*/
-            loss += mse(resaux, target);
+            loss += mse(network, target);
             size_t best = 0;
             for (size_t c = 1; c < 26; ++c)
-                if (resaux->couches[2].neurones[c].activation >
-                    resaux->couches[2].neurones[best].activation)
+                if (network->layers[2].neurons[c].activation >
+                    network->layers[2].neurons[best].activation)
                     best = c;
-            if (gessed_letter(resaux) == (char)('A' + labels[s]))
+            if (guessed_letter(network) == (char)('A' + labels[s]))
                 ++correct;
         }
 
@@ -158,14 +158,14 @@ int main(void)
             printf("epoch %d  mse %f  acc %zu/%zu  last expect: %c  got: %c\n",
                  e, loss / (double)n_samples, correct, n_samples,
                  (char)('A' + labels[order[n_samples - 1]]),
-                 gessed_letter(resaux));
+                 guessed_letter(network));
 
     }
-    /*fin training*/
+    /*end of training*/
 
-    save_ia(resaux, "trained_ia");
+    save_ai(network, "trained_ai");
 
-    destroy_resaux(resaux);
+    destroy_network(network);
     free(pixels);
     printf("\n\tEXIT_SUCCESS\n\n");
     for (size_t s = 0; s < n_samples; ++s)

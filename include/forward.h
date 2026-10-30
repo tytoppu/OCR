@@ -1,12 +1,12 @@
-#ifndef ENTRAINEMENT_H
-#define ENTRAINEMENT_H
+#ifndef FORWARD_H
+#define FORWARD_H
 
 #include <math.h>
-#include "ia1.h"
+#include "ai1.h"
 #include "image.h"
 
 
-void forward_resaux(struct resaux *resaux);
+void forward_network(struct network *network);
 double sigmoid(double income);
 
 
