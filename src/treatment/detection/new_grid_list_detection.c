@@ -35,8 +35,14 @@ void dectet_grid_and_list(struct simple_surface* simple, struct simple_surface* 
 {
 	if (!simple || !grid || !list)
 		errx(EXIT_FAILURE, "dectet_grid_and_list : wrong input");
-	int width[simple->w];
-	int height[simple->h];
+
+
+	int *width = calloc(simple->w, sizeof(int));
+	int *height = calloc(simple->h, sizeof(int));
+
+	if (width == NULL || height == NULL)
+    		errx(EXIT_FAILURE, "dectet_grid_and_listAllocation memory failed");
+
 	int w_count=0;
 	int h_count=0;
 	for (int w=0; w<simple->w; w++)
@@ -310,5 +316,7 @@ void dectet_grid_and_list(struct simple_surface* simple, struct simple_surface* 
 
 	make_chunck(grid,t_l_x1,t_l_y1,b_r_x1,b_r_y1);
 	make_chunck(list,t_l_x2,t_l_y2,b_r_x2,b_r_y2);
+	free(width);
+	free(height);
 }
 
