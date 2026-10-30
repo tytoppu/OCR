@@ -39,21 +39,22 @@ typedef struct
 
 //say if list of words on the right or on the left
 
-
+//plus besoin
+/*
 typedef enum
 {
     WORD_LIST_LEFT,
     WORD_LIST_RIGHT
 } WordListSide;
-
+*/
 //coordinates of the word list and location
 
-
+/*
 typedef struct
 {
-    Rectangle bounds;
-    WordListSide side;
+    Rectangle bounds; //si on garde à remplir
+    WordListSide side;  // à enlever
 } WordListCoordinates;
-
+*/
 #endif /* COORDINATES_H */
 

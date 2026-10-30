@@ -10,8 +10,26 @@
 
 int is_colors(struct simple_surface* simple,int x, int y,int colors)    {                                                                               /*                                                                              return 1 if its colors, 0 if its not                            */                                                                                                                                              if (!simple || x < 0 || y < 0 || x >= simple->w || y >= simple->h)                                                                                      errx(EXIT_FAILURE, "is_colors : wrong input");                                                                                          return simple->gray[(size_t)y * (size_t)simple->w + (size_t)x] == colors;
 }                                                                        
+/*
+static void set_rectangle(Rectangle *r,
+                          int x_min,
+                          int y_min,
+                          int x_max,
+                          int y_max)
+{
+    r->top_left.x = x_min;
+    r->top_left.y = y_min;
 
+    r->top_right.x = x_max;
+    r->top_right.y = y_min;
 
+    r->bottom_right.x = x_max;
+    r->bottom_right.y = y_max;
+
+    r->bottom_left.x = x_min;
+    r->bottom_left.y = y_max;
+}
+*/
 
 void dectet_grid_and_list(struct simple_surface* simple, struct simple_surface* grid, struct simple_surface* list, int colors)
 {
@@ -292,5 +310,5 @@ void dectet_grid_and_list(struct simple_surface* simple, struct simple_surface* 
 
 	make_chunck(grid,t_l_x1,t_l_y1,b_r_x1,b_r_y1);
 	make_chunck(list,t_l_x2,t_l_y2,b_r_x2,b_r_y2);
-	
 }
+
