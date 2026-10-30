@@ -62,6 +62,19 @@ struct simple_surface* init_simple_surface(int w, int h){
     return new;
 }
 
+struct cell_grid* intit_cell_grid(int w, int h){
+    struct cell_grid* new = malloc(sizeof(struct cell_grid));
+    if(!new) errx(EXIT_FAILURE, "malloc in intit_cell_grid");
+
+    new->w = w;
+    new->h = h;
+    new->simple = NULL;
+
+    return new;
+
+}
+
+
 
 SDL_Surface* simple_surface_to_surface(struct simple_surface* simple){
     SDL_Surface* new = SDL_CreateRGBSurfaceWithFormat(0, simple->w, simple->h,
